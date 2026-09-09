@@ -166,6 +166,7 @@ textarea{min-height:76px;resize:vertical;}
   <input type="text" name="Ort">
   <input type="text" name="Geschlecht">
   <input type="text" name="Position">
+  <input type="text" name="Position_eigene">
   <input type="number" name="Berufsjahre_Position">
   <input type="text" name="Branchen">
   <input type="text" name="Jahre_Bauwesen">
@@ -264,6 +265,10 @@ textarea{min-height:76px;resize:vertical;}
           </div>
           <input type="hidden" name="Position" id="poziciaVal">
           <div class="errmsg" id="e-poz" data-t="e_poz"></div>
+          <div class="cond" id="c-inapoz">
+            <span class="lbl" data-t="c_inapoz"></span>
+            <input type="text" name="Position_eigene" id="inaPoz">
+          </div>
         </div>
         <div class="f">
           <label for="praxP"><span data-t="f_praxp"></span> <span class="om" data-t="roky"></span></label>
@@ -457,7 +462,9 @@ e_meno:["Bitte Vor- und Nachnamen angeben.","Uveďte prosím meno a priezvisko."
 e_tel:["Bitte Telefonnummer angeben.","Uveďte prosím telefónne číslo.","Uveďte prosím telefonní číslo.","Podaj numer telefonu.","Please enter your phone number."],
 e_mail:["Bitte E-Mail-Format prüfen.","Skontrolujte prosím tvar e-mailovej adresy.","Zkontrolujte prosím tvar e-mailu.","Sprawdź poprawność adresu e-mail.","Please check the email format."],
 e_poz:["Bitte Position wählen.","Vyberte prosím pozíciu.","Vyberte prosím pozici.","Wybierz stanowisko.","Please select a position."],
-nenajdene:["Nichts gefunden. Wählen Sie „Andere Position“.","Nič nenájdené. Vyberte „Iná pozícia“.","Nic nenalezeno. Vyberte „Jiná pozice“.","Nic nie znaleziono. Wybierz „Inne stanowisko“.","Nothing found. Choose “Other position”."],
+c_inapoz:["Welche Position genau? Bitte eintragen.","Akú pozíciu presne? Napíšte nám ju.","Jakou pozici přesně? Napište nám ji.","Jakie dokładnie stanowisko? Wpisz je.","Which position exactly? Please write it in."],
+inapoz_ph:["z. B. Kellner, Gärtner, Fahrer…","napr. čašník, záhradník, vodič…","např. číšník, zahradník, řidič…","np. kelner, ogrodnik, kierowca…","e.g. waiter, gardener, driver…"],
+nenajdene:["Nichts gefunden. Wählen Sie „Andere Position“ und tragen Sie sie selbst ein.","Nič nenájdené. Vyberte „Iná pozícia“ a napíšte nám ju vlastnými slovami.","Nic nenalezeno. Vyberte „Jiná pozice“ a napište nám ji vlastními slovy.","Nic nie znaleziono. Wybierz „Inne stanowisko“ i wpisz je własnymi słowami.","Nothing found. Choose “Other position” and write it in yourself."],
 doplnte:["Bitte noch ergänzen: ","Ešte doplňte: ","Ještě doplňte: ","Uzupełnij jeszcze: ","Still missing: "],
 err_suhlas:["Pflicht-Einwilligung","povinný súhlas","povinný souhlas","wymagana zgoda","required consent"],
 roky_ph:["Jahre","roky","roky","lata","years"],
@@ -557,6 +564,15 @@ const POZICIE=[
 ["Isolierer","Izolatér","Izolatér","Izolator","Insulation worker"],
 ["Gerüstbauer","Lešenár","Lešenář","Rusztowaniarz","Scaffolder"],
 ["Bauhelfer","Stavebný robotník","Stavební dělník","Pracownik budowlany","Construction labourer"]]],
+[["Gastronomie und Hotellerie","Gastro a hotelierstvo","Gastro a hotelnictví","Gastronomia i hotelarstwo","Hospitality"],[
+["Kellner / Kellnerin","Čašník / čašníčka","Číšník / servírka","Kelner / kelnerka","Waiter / waitress"],
+["Koch / Köchin","Kuchár / kuchárka","Kuchař / kuchařka","Kucharz / kucharka","Cook"],
+["Küchenhilfe","Pomocník v kuchyni","Pomocník v kuchyni","Pomoc kuchenna","Kitchen assistant"],
+["Spülkraft","Umývač riadu","Myč nádobí","Pomoc przy zmywaku","Dishwasher"],
+["Zimmermädchen / Roomboy","Chyžná / chyžný","Pokojská / pokojský","Pokojówka","Housekeeper"],
+["Rezeptionist / Rezeptionistin","Recepčný / recepčná","Recepční","Recepcjonista","Receptionist"],
+["Barkeeper","Barman / barmanka","Barman / barmanka","Barman","Bartender"],
+["Servicekraft","Pracovník obsluhy","Pracovník obsluhy","Pracownik obsługi","Service staff"]]],
 [["Sonstige","Ostatné","Ostatní","Pozostałe","Other"],[
 ["Reinigungskraft","Upratovanie","Úklid","Sprzątanie","Cleaning"],
 ["Andere Position","Iná pozícia","Jiná pozice","Inne stanowisko","Other position"]]]
@@ -624,7 +640,9 @@ function vykresliVsetko(){
       const najdene = par[1].find(p => val(p) === pv);
       if (najdene){ $("cbSelTxt").textContent = t(najdene); break; }
     }
+    $("c-inapoz").classList.toggle("on", pv === "Andere Position");
   }
+  $("inaPoz").placeholder = t(T.inapoz_ph);
   prepocitaj();
 }
 
@@ -769,7 +787,9 @@ function vykresliPop(filter){
   let pocet = 0;
   POZICIE.forEach(par => {
     const skupina = par[0], polozky = par[1];
-    const zhody = polozky.filter(p => !q || norm(t(p)).includes(q) || norm(val(p)).includes(q));
+    // hlada sa vo vsetkych jazykovych variantoch naraz — kandidat najde
+    // poziciu aj ked ju napise po svojom (napr. "kelner" v SK rezime)
+    const zhody = polozky.filter(p => !q || p.some(variant => norm(variant).includes(q)));
     if (!zhody.length) return;
     const gh = document.createElement("div");
     gh.className = "cb-grp"; gh.textContent = t(skupina);
@@ -788,16 +808,30 @@ function vykresliPop(filter){
 function otvorPop(){ cbPop.classList.add("on"); cbIn.setAttribute("aria-expanded","true"); }
 function zavriPop(){ cbPop.classList.remove("on"); cbIn.setAttribute("aria-expanded","false"); }
 function vyberPoziciu(hodnotaDE, popis){
+  const napisane = cbIn.value.trim();
   $("poziciaVal").value = hodnotaDE;
   $("cbSelTxt").textContent = popis;
   cbSel.classList.add("on");
   cbIn.value = ""; cbIn.style.display = "none";
   document.querySelector(".cb-ic").style.display = "none";
-  zavriPop(); $("e-poz").classList.remove("on"); prepocitaj();
+  zavriPop(); $("e-poz").classList.remove("on");
+
+  // pri "Ina pozicia" ponukneme volne pole a predvyplnime, co uz napisal
+  const ine = hodnotaDE === "Andere Position";
+  $("c-inapoz").classList.toggle("on", ine);
+  if (ine){
+    if (napisane && !$("inaPoz").value) $("inaPoz").value = napisane;
+    $("inaPoz").focus();
+  } else {
+    $("inaPoz").value = "";
+  }
+  prepocitaj();
 }
 function zrusPoziciu(){
   $("poziciaVal").value = "";
   cbSel.classList.remove("on");
+  $("c-inapoz").classList.remove("on");
+  $("inaPoz").value = "";
   cbIn.style.display = ""; document.querySelector(".cb-ic").style.display = "";
   cbIn.focus(); prepocitaj();
 }
