@@ -152,6 +152,51 @@ textarea{min-height:76px;resize:vertical;}
 </head>
 <body>
 
+<!-- ============================================================
+     Skryta kopia formulara pre Netlify.
+     Netlify cita HTML pri nasadeni, ale vacsina poli vznika az
+     v prehliadaci cez JavaScript — tie by nevidel. Tento blok mu
+     povie, ake polia ocakavat. Uzivatel ho nikdy neuvidi.
+============================================================ -->
+<form name="bewerbung" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="Name">
+  <input type="tel" name="Telefon">
+  <input type="email" name="E-Mail">
+  <input type="date" name="Geburtsdatum">
+  <input type="text" name="Ort">
+  <input type="text" name="Geschlecht">
+  <input type="text" name="Position">
+  <input type="number" name="Berufsjahre_Position">
+  <input type="text" name="Branchen">
+  <input type="text" name="Jahre_Bauwesen">
+  <input type="text" name="Jahre_Produktion und Industrie">
+  <input type="text" name="Jahre_Lager und Logistik">
+  <input type="text" name="Jahre_Schweißen und Metallbau">
+  <input type="text" name="Jahre_Elektro und Elektroinstallation">
+  <input type="text" name="Jahre_Maschinenbau und Montage">
+  <input type="text" name="Jahre_Transport">
+  <input type="text" name="Jahre_Reinigung und Instandhaltung">
+  <input type="text" name="Jahre_Landwirtschaft">
+  <input type="text" name="Jahre_Gastronomie">
+  <input type="text" name="Jahre_Sonstige">
+  <input type="text" name="Sprache_Deutsch">
+  <input type="text" name="Sprache_Englisch">
+  <input type="text" name="Sprache_weitere">
+  <input type="text" name="Ausbildung">
+  <input type="text" name="Zertifikate">
+  <input type="text" name="Schweissverfahren">
+  <input type="text" name="Elektro_Umfang">
+  <textarea name="Weitere_Zertifikate"></textarea>
+  <input type="text" name="Fuehrerschein">
+  <input type="text" name="Fahrerkarte">
+  <input type="text" name="Verfuegbarkeit">
+  <input type="file" name="Lebenslauf">
+  <input type="text" name="Einwilligung_Bewerbung">
+  <input type="text" name="Einwilligung_Datenbank">
+  <input type="text" name="Formularsprache">
+  <input name="bot-field">
+</form>
+
 <div class="prog"><span id="progBar"></span></div>
 
 <div class="top">
@@ -171,7 +216,10 @@ textarea{min-height:76px;resize:vertical;}
 
 <div class="wrap">
   <div class="card">
-    <form id="frm" novalidate>
+    <form id="frm" name="bewerbung" method="POST" enctype="multipart/form-data" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+      <input type="hidden" name="form-name" value="bewerbung">
+      <input type="hidden" name="Formularsprache" id="formLang" value="sk">
+      <p style="display:none"><label>Nevypĺňať <input name="bot-field"></label></p>
 
       <div class="sec">
         <div class="sec-h"><span class="sec-n">1</span><h2 data-t="s1"></h2></div>
@@ -413,6 +461,12 @@ nenajdene:["Nichts gefunden. Wählen Sie „Andere Position“.","Nič nenájden
 doplnte:["Bitte noch ergänzen: ","Ešte doplňte: ","Ještě doplňte: ","Uzupełnij jeszcze: ","Still missing: "],
 err_suhlas:["Pflicht-Einwilligung","povinný súhlas","povinný souhlas","wymagana zgoda","required consent"],
 roky_ph:["Jahre","roky","roky","lata","years"],
+odosielam:["Wird gesendet…","Odosielam…","Odesílám…","Wysyłanie…","Sending…"],
+chyba_odoslania:["Senden fehlgeschlagen. Bitte Internetverbindung prüfen und erneut versuchen.",
+"Odoslanie zlyhalo. Skontrolujte pripojenie na internet a skúste to znova.",
+"Odeslání selhalo. Zkontrolujte připojení k internetu a zkuste to znovu.",
+"Wysyłanie nie powiodło się. Sprawdź połączenie z internetem i spróbuj ponownie.",
+"Sending failed. Please check your internet connection and try again."],
 jaz_ph:["Weitere Sprache","Ďalší jazyk","Další jazyk","Kolejny język","Another language"]
 };
 
@@ -518,6 +572,8 @@ LANGS.forEach(code => {
 function prepni(code){
   L = code;
   document.documentElement.lang = code;
+  const lf = $("formLang");
+  if (lf) lf.value = code;
   [...$("langs").children].forEach(b => b.classList.toggle("on", b.dataset.l === code));
   vykresliVsetko();
 }
@@ -815,13 +871,27 @@ $("frm").addEventListener("submit", e => {
   }
   box.classList.remove("on");
 
-  const data = Object.fromEntries(new FormData($("frm")));
-  data.Formularsprache = L;
-  console.log("Údaje (hodnoty po nemecky):", data);
+  const tlacidlo = $("frm").querySelector(".send");
+  tlacidlo.disabled = true;
+  tlacidlo.textContent = t(T.odosielam);
 
-  $("frm").style.display = "none";
-  $("done").classList.add("on");
-  window.scrollTo({top:0, behavior:"smooth"});
+  const data = new FormData($("frm"));
+  data.set("Formularsprache", L);
+
+  fetch("/", { method: "POST", body: data })
+    .then(r => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      $("frm").style.display = "none";
+      $("done").classList.add("on");
+      window.scrollTo({top:0, behavior:"smooth"});
+    })
+    .catch(err => {
+      console.error("Odoslanie zlyhalo:", err);
+      tlacidlo.disabled = false;
+      tlacidlo.textContent = t(T.btn);
+      box.textContent = t(T.chyba_odoslania);
+      box.classList.add("on");
+    });
 });
 
 prepni("sk");
