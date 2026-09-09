@@ -158,7 +158,7 @@ textarea{min-height:76px;resize:vertical;}
      v prehliadaci cez JavaScript — tie by nevidel. Tento blok mu
      povie, ake polia ocakavat. Uzivatel ho nikdy neuvidi.
 ============================================================ -->
-<form name="bewerbung" data-netlify="true" netlify-honeypot="bot-field" hidden>
+<form name="bewerbung" method="POST" enctype="multipart/form-data" data-netlify="true" netlify-honeypot="bot-field" hidden>
   <input type="text" name="Name">
   <input type="tel" name="Telefon">
   <input type="email" name="E-Mail">
@@ -217,7 +217,7 @@ textarea{min-height:76px;resize:vertical;}
 
 <div class="wrap">
   <div class="card">
-    <form id="frm" name="bewerbung" method="POST" enctype="multipart/form-data" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+    <form id="frm" method="POST" enctype="multipart/form-data" novalidate>
       <input type="hidden" name="form-name" value="bewerbung">
       <input type="hidden" name="Formularsprache" id="formLang" value="sk">
       <p style="display:none"><label>Nevypĺňať <input name="bot-field"></label></p>
