@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MRB Recruitment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0B2A4A; --navy-deep:#071B31; --blue:#1F6FEB; --blue-bright:#3C8BFF;
+  --blue-soft:#EAF2FE; --blue-line:#BBD4F7; --paper:#FFF; --bg:#EEF2F6;
+  --ink:#0B1F33; --stone:#5D6E80; --rule:#D9E1E9; --ok:#1E874B; --err:#C0392B;
+  --f-d:'Archivo',sans-serif; --f-b:'Public Sans',sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-b);line-height:1.55;-webkit-font-smoothing:antialiased;}
+h1,h2{font-family:var(--f-d);font-weight:900;margin:0;letter-spacing:-.015em;}
+button{font-family:inherit;}
+
+.prog{position:fixed;top:0;left:0;right:0;height:4px;background:rgba(11,42,74,.15);z-index:100;}
+.prog span{display:block;height:100%;width:0;background:var(--blue-bright);transition:width .35s;}
+
+.top{background:var(--navy);color:#fff;padding:24px 20px 0;}
+.top-in{max-width:600px;margin:0 auto;}
+.hdr{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.brand{display:flex;align-items:center;gap:13px;}
+.ring{width:50px;height:50px;border-radius:50%;flex:none;border:3.5px solid var(--blue-bright);border-right-color:transparent;transform:rotate(-35deg);}
+.wm{font-family:var(--f-d);font-weight:800;letter-spacing:.17em;font-size:13.5px;line-height:1.35;}
+.wm small{display:block;font-size:10.5px;letter-spacing:.13em;color:var(--blue-bright);margin-top:3px;}
+
+.langs{display:flex;border:1px solid rgba(255,255,255,.25);border-radius:6px;overflow:hidden;flex:none;}
+.langs button{background:transparent;border:none;color:#AFC0D2;font-family:var(--f-d);font-weight:700;
+  font-size:11.5px;letter-spacing:.06em;padding:9px 9px;cursor:pointer;transition:.15s;min-width:38px;}
+.langs button+button{border-left:1px solid rgba(255,255,255,.18);}
+.langs button:hover:not(.on){color:#fff;background:rgba(255,255,255,.08);}
+.langs button.on{background:var(--blue-bright);color:#fff;}
+@media(max-width:430px){
+  .hdr{flex-direction:column;align-items:flex-start;}
+  .langs{width:100%;}
+  .langs button{flex:1;}
+}
+
+.claim{font-family:var(--f-d);font-weight:800;font-size:11px;letter-spacing:.09em;color:var(--blue-bright);text-transform:uppercase;margin:18px 0 0;}
+.top h1{font-size:clamp(24px,6vw,31px);text-transform:uppercase;line-height:1.07;margin:10px 0 12px;}
+.top p{color:#AFC0D2;font-size:15px;margin:0;padding-bottom:38px;}
+
+.wrap{max-width:600px;margin:-22px auto 0;padding:0 20px 70px;}
+.card{background:var(--paper);border-radius:10px;box-shadow:0 10px 34px -14px rgba(11,42,74,.3);overflow:hidden;}
+.sec{padding:26px 22px;border-bottom:1px solid var(--rule);}
+.sec-h{display:flex;align-items:baseline;gap:11px;margin-bottom:20px;}
+.sec-n{font-family:var(--f-d);font-weight:800;font-size:12px;color:var(--blue);background:var(--blue-soft);border-radius:4px;padding:3px 8px;flex:none;}
+.sec-h h2{font-size:15px;}
+.sec-note{font-size:13px;color:var(--stone);margin:-12px 0 16px;}
+
+.f{margin-bottom:18px;}
+.f:last-child{margin-bottom:0;}
+.f>label,.lbl{display:block;font-size:13.5px;font-weight:600;margin-bottom:7px;}
+.om{font-weight:400;color:var(--stone);font-size:12.5px;}
+input[type=text],input[type=tel],input[type=email],input[type=date],input[type=number],select,textarea{
+  width:100%;padding:13px 14px;font-family:var(--f-b);font-size:16px;
+  border:1.5px solid #C6D0DA;border-radius:6px;background:#fff;color:var(--ink);-webkit-appearance:none;appearance:none;}
+select{background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%235D6E80' stroke-width='2' fill='none'/></svg>");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:38px;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(31,111,235,.13);}
+input.bad{border-color:var(--err);}
+.errmsg{display:none;font-size:12.5px;color:var(--err);margin-top:5px;font-weight:500;}
+.errmsg.on{display:block;}
+textarea{min-height:76px;resize:vertical;}
+.hint{font-size:12.5px;color:var(--stone);margin-top:6px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:480px){.row2{grid-template-columns:1fr;}}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chips label{display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:11px 14px;
+  border:1.5px solid #C6D0DA;border-radius:22px;font-size:14.5px;background:#fff;transition:.15s;min-height:44px;}
+.chips input{accent-color:var(--blue);margin:0;width:17px;height:17px;}
+.chips label:has(input:checked){border-color:var(--blue);background:var(--blue-soft);font-weight:600;}
+
+.cb{position:relative;}
+.cb-in{width:100%;padding:13px 40px 13px 14px;font-size:16px;border:1.5px solid #C6D0DA;border-radius:6px;background:#fff;}
+.cb-ic{position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--stone);}
+.cb-pop{position:absolute;z-index:60;top:calc(100% + 5px);left:0;right:0;background:#fff;
+  border:1.5px solid var(--blue-line);border-radius:8px;box-shadow:0 14px 32px -10px rgba(11,31,51,.3);
+  max-height:290px;overflow-y:auto;display:none;}
+.cb-pop.on{display:block;}
+.cb-grp{font-family:var(--f-d);font-weight:800;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--stone);padding:12px 14px 5px;background:#F7F9FB;position:sticky;top:0;}
+.cb-opt{padding:12px 14px;font-size:15.5px;cursor:pointer;border-top:1px solid #F0F4F7;}
+.cb-opt:hover,.cb-opt.hi{background:var(--blue-soft);}
+.cb-empty{padding:16px 14px;font-size:14px;color:var(--stone);}
+.cb-sel{display:none;align-items:center;gap:9px;margin-top:9px;padding:11px 13px;background:var(--blue-soft);
+  border:1.5px solid var(--blue-line);border-radius:6px;font-size:15px;font-weight:600;}
+.cb-sel.on{display:flex;}
+.cb-sel button{margin-left:auto;background:none;border:none;color:var(--stone);cursor:pointer;font-size:17px;padding:0 4px;}
+
+.odv{border:1.5px solid var(--rule);border-radius:8px;overflow:hidden;}
+.odv-r{display:grid;grid-template-columns:1fr 104px;gap:10px;align-items:center;padding:11px 13px;border-bottom:1px solid var(--rule);background:#fff;}
+.odv-r:last-child{border-bottom:none;}
+.odv-r.on{background:var(--blue-soft);}
+.odv-r>label{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;margin:0;font-weight:400;}
+.odv-r input[type=checkbox]{accent-color:var(--blue);width:18px;height:18px;flex:none;}
+.odv-r input[type=number]{padding:9px 10px;font-size:14.5px;text-align:center;}
+.odv-r input[type=number]:disabled{background:#F4F7FA;border-color:#E2E8EE;color:#B6C1CC;}
+
+.jz{display:grid;grid-template-columns:1fr 152px;gap:10px;margin-bottom:10px;align-items:center;}
+.jz.extra{grid-template-columns:1fr 152px 46px;}
+.jz .nm{font-size:15px;font-weight:600;}
+.jz select{padding:11px 12px;font-size:15px;}
+.addbtn{width:100%;padding:12px;margin-top:4px;background:var(--blue-soft);border:1.5px dashed var(--blue-line);
+  border-radius:6px;color:var(--navy);font-size:14px;font-weight:600;cursor:pointer;}
+.xbtn{background:#fff;border:1.5px solid #C6D0DA;border-radius:6px;color:var(--stone);cursor:pointer;font-size:16px;height:46px;}
+
+.cond{display:none;margin-top:12px;padding:14px;background:#F7F9FB;border-left:3px solid var(--blue);border-radius:0 6px 6px 0;}
+.cond.on{display:block;}
+.cond .lbl{font-size:13px;margin-bottom:7px;}
+
+.gdpr{background:#F7F9FB;padding:24px 22px;}
+.gd{display:flex;gap:12px;align-items:flex-start;margin-bottom:18px;font-size:13.5px;color:#33465C;line-height:1.55;}
+.gd:last-child{margin-bottom:0;}
+.gd input{accent-color:var(--blue);width:19px;height:19px;margin-top:2px;flex:none;}
+.gd a{color:var(--blue);}
+.tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:3px;margin-left:5px;vertical-align:1px;}
+.tag.req{background:#FDEAE7;color:var(--err);}
+.tag.vol{background:#E8F5EC;color:var(--ok);}
+
+.submit-wrap{padding:22px;}
+.send{width:100%;padding:17px;background:var(--blue);color:#fff;border:none;border-radius:7px;
+  font-family:var(--f-d);font-size:15px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}
+.send:hover{background:var(--blue-bright);}
+.form-err{display:none;margin-top:12px;padding:12px 14px;background:#FDEAE7;border-left:3px solid var(--err);
+  border-radius:0 5px 5px 0;font-size:13.5px;color:#8E2A1E;}
+.form-err.on{display:block;}
+
+.done{display:none;padding:44px 24px;text-align:center;}
+.done.on{display:block;}
+.done .tick{width:60px;height:60px;border-radius:50%;background:#E8F5EC;color:var(--ok);
+  display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 18px;}
+.done h2{font-size:20px;margin-bottom:10px;}
+.done p{color:var(--stone);font-size:15px;}
+
+.foot{background:var(--navy-deep);color:#A9BACC;padding:32px 20px 36px;}
+.foot-in{max-width:600px;margin:0 auto;text-align:center;}
+.foot .ring{margin:0 auto 18px;}
+.foot-c{font-size:14.5px;line-height:2.15;}
+.foot-c a{color:#fff;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.28);}
+.foot-tag{margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,.13);
+  font-family:var(--f-d);font-weight:800;font-size:11px;letter-spacing:.07em;color:#fff;text-transform:uppercase;line-height:2;}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     Skryta kopia formulara pre Netlify.
+     Netlify cita HTML pri nasadeni, ale vacsina poli vznika az
+     v prehliadaci cez JavaScript — tie by nevidel. Tento blok mu
+     povie, ake polia ocakavat. Uzivatel ho nikdy neuvidi.
+============================================================ -->
+<form name="bewerbung" method="POST" enctype="multipart/form-data" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <input type="text" name="Name">
+  <input type="tel" name="Telefon">
+  <input type="email" name="E-Mail">
+  <input type="date" name="Geburtsdatum">
+  <input type="text" name="Ort">
+  <input type="text" name="Geschlecht">
+  <input type="text" name="Position">
+  <input type="text" name="Position_eigene">
+  <input type="number" name="Berufsjahre_Position">
+  <input type="text" name="Branchen">
+  <input type="text" name="Jahre_Bauwesen">
+  <input type="text" name="Jahre_Produktion und Industrie">
+  <input type="text" name="Jahre_Lager und Logistik">
+  <input type="text" name="Jahre_Schweißen und Metallbau">
+  <input type="text" name="Jahre_Elektro und Elektroinstallation">
+  <input type="text" name="Jahre_Maschinenbau und Montage">
+  <input type="text" name="Jahre_Transport">
+  <input type="text" name="Jahre_Reinigung und Instandhaltung">
+  <input type="text" name="Jahre_Landwirtschaft">
+  <input type="text" name="Jahre_Gastronomie">
+  <input type="text" name="Jahre_Sonstige">
+  <input type="text" name="Sprache_Deutsch">
+  <input type="text" name="Sprache_Englisch">
+  <input type="text" name="Sprache_weitere">
+  <input type="text" name="Ausbildung">
+  <input type="text" name="Zertifikate">
+  <input type="text" name="Schweissverfahren">
+  <input type="text" name="Elektro_Umfang">
+  <textarea name="Weitere_Zertifikate"></textarea>
+  <input type="text" name="Fuehrerschein">
+  <input type="text" name="Fahrerkarte">
+  <input type="text" name="Verfuegbarkeit">
+  <input type="file" name="Lebenslauf">
+  <input type="text" name="Einwilligung_Bewerbung">
+  <input type="text" name="Einwilligung_Datenbank">
+  <input type="text" name="Formularsprache">
+  <input name="bot-field">
+</form>
+
+<div class="prog"><span id="progBar"></span></div>
+
+<div class="top">
+  <div class="top-in">
+    <div class="hdr">
+      <div class="brand">
+        <div class="ring"></div>
+        <div class="wm">RECRUITMENT<small>MRB</small></div>
+      </div>
+      <div class="langs" id="langs" role="group" aria-label="Language"></div>
+    </div>
+    <p class="claim" data-t="claim"></p>
+    <h1 data-t="h1"></h1>
+    <p data-t="lead"></p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <form id="frm" method="POST" enctype="multipart/form-data" novalidate>
+      <input type="hidden" name="form-name" value="bewerbung">
+      <input type="hidden" name="Formularsprache" id="formLang" value="sk">
+      <p style="display:none"><label>Nevypĺňať <input name="bot-field"></label></p>
+
+      <div class="sec">
+        <div class="sec-h"><span class="sec-n">1</span><h2 data-t="s1"></h2></div>
+        <div class="f">
+          <label for="meno" data-t="f_meno"></label>
+          <input type="text" id="meno" name="Name" autocomplete="name">
+          <div class="errmsg" id="e-meno" data-t="e_meno"></div>
+        </div>
+        <div class="f">
+          <label for="tel" data-t="f_tel"></label>
+          <input type="tel" id="tel" name="Telefon" inputmode="tel" autocomplete="tel" placeholder="+421 900 000 000">
+          <div class="errmsg" id="e-tel" data-t="e_tel"></div>
+        </div>
+        <div class="f">
+          <label for="mail"><span data-t="f_mail"></span> <span class="om" data-t="opt"></span></label>
+          <input type="email" id="mail" name="E-Mail" inputmode="email" autocomplete="email">
+          <div class="errmsg" id="e-mail" data-t="e_mail"></div>
+        </div>
+        <div class="row2">
+          <div class="f"><label for="dn" data-t="f_dn"></label><input type="date" id="dn" name="Geburtsdatum" autocomplete="bday"></div>
+          <div class="f"><label for="mesto" data-t="f_mesto"></label><input type="text" id="mesto" name="Ort"></div>
+        </div>
+        <div class="f">
+          <span class="lbl" data-t="f_pohl"></span>
+          <div class="chips" id="pohl"></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h"><span class="sec-n">2</span><h2 data-t="s2"></h2></div>
+        <p class="sec-note" data-t="s2note"></p>
+        <div class="f">
+          <label for="cbIn" data-t="f_poz"></label>
+          <div class="cb">
+            <input type="text" id="cbIn" class="cb-in" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="cbPop">
+            <span class="cb-ic">▾</span>
+            <div class="cb-pop" id="cbPop" role="listbox"></div>
+          </div>
+          <div class="cb-sel" id="cbSel">
+            <span id="cbSelTxt"></span>
+            <button type="button" onclick="zrusPoziciu()">✕</button>
+          </div>
+          <input type="hidden" name="Position" id="poziciaVal">
+          <div class="errmsg" id="e-poz" data-t="e_poz"></div>
+          <div class="cond" id="c-inapoz">
+            <span class="lbl" data-t="c_inapoz"></span>
+            <input type="text" name="Position_eigene" id="inaPoz">
+          </div>
+        </div>
+        <div class="f">
+          <label for="praxP"><span data-t="f_praxp"></span> <span class="om" data-t="roky"></span></label>
+          <input type="number" id="praxP" name="Berufsjahre_Position" min="0" max="60" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h"><span class="sec-n">3</span><h2 data-t="s3"></h2></div>
+        <p class="sec-note" data-t="s3note"></p>
+        <div class="odv" id="odv"></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h"><span class="sec-n">4</span><h2 data-t="s4"></h2></div>
+        <div class="f">
+          <span class="lbl" data-t="f_jaz"></span>
+          <div id="jaz"></div>
+          <button type="button" class="addbtn" onclick="pridajJazyk()" data-t="add_jaz"></button>
+        </div>
+        <div class="f">
+          <label for="vzd" data-t="f_vzd"></label>
+          <select id="vzd" name="Ausbildung"></select>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h"><span class="sec-n">5</span><h2 data-t="s5"></h2></div>
+        <p class="sec-note" data-t="s5note"></p>
+        <div class="f">
+          <div class="chips" id="kurzy"></div>
+          <div class="cond" id="c-zvar">
+            <span class="lbl" data-t="c_zvar"></span>
+            <input type="text" name="Schweissverfahren" placeholder="135, 141, 111, 311">
+          </div>
+          <div class="cond" id="c-elektro">
+            <span class="lbl" data-t="c_elektro"></span>
+            <input type="text" name="Elektro_Umfang">
+          </div>
+        </div>
+        <div class="f">
+          <label for="kurzIne"><span data-t="f_kurzine"></span> <span class="om" data-t="opt"></span></label>
+          <textarea id="kurzIne" name="Weitere_Zertifikate"></textarea>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h"><span class="sec-n">6</span><h2 data-t="s6"></h2></div>
+        <div class="f">
+          <span class="lbl" data-t="f_vp"></span>
+          <div class="chips" id="vp"></div>
+        </div>
+        <div class="cond" id="c-karta">
+          <span class="lbl" data-t="c_karta"></span>
+          <div class="chips" id="karta"></div>
+        </div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h"><span class="sec-n">7</span><h2 data-t="s7"></h2></div>
+        <div class="f">
+          <span class="lbl" data-t="f_dost"></span>
+          <div class="chips" id="dost"></div>
+        </div>
+        <div class="f">
+          <label for="cv"><span data-t="f_cv"></span> <span class="om" data-t="opt"></span></label>
+          <input type="file" id="cv" name="Lebenslauf" accept=".pdf,.doc,.docx">
+          <p class="hint" data-t="cv_hint"></p>
+        </div>
+      </div>
+
+      <div class="gdpr">
+        <label class="gd">
+          <input type="checkbox" name="Einwilligung_Bewerbung" id="s1">
+          <span><span data-t="gdpr1"></span>
+            <a href="https://www.mrb-recruitment.de" target="_blank" rel="noopener" data-t="gdpr1link"></a>.
+            <span class="tag req" data-t="povinne"></span></span>
+        </label>
+        <label class="gd">
+          <input type="checkbox" name="Einwilligung_Datenbank" id="s2">
+          <span><span data-t="gdpr2"></span>
+            <span class="tag vol" data-t="dobrovolne"></span></span>
+        </label>
+      </div>
+
+      <div class="submit-wrap">
+        <button type="submit" class="send" data-t="btn"></button>
+        <div class="form-err" id="formErr"></div>
+      </div>
+    </form>
+
+    <div class="done" id="done">
+      <div class="tick">✓</div>
+      <h2 data-t="done_h"></h2>
+      <p data-t="done_p"></p>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <div class="foot-in">
+    <div class="ring"></div>
+    <div class="foot-c">
+      <a href="mailto:bewerbungen@mrb-muenchen.de">bewerbungen@mrb-muenchen.de</a><br>
+      <a href="tel:+436776473807">+43 677 647 380 73</a><br>
+      <a href="https://www.mrb-recruitment.de" target="_blank" rel="noopener">www.mrb-recruitment.de</a>
+    </div>
+    <div class="foot-tag">Ihre Arbeit. Unsere Stärke.<br>Gemeinsame Zukunft.</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* Poradie hodnot vsade: [DE, SK, CS, PL, EN]
+   DE = kanonicka hodnota, ta ide na mail bez ohladu na zvoleny jazyk. */
+const LANGS = ["sk","cs","pl","de","en"];
+const LANG_LABEL = {sk:"SK", cs:"CZ", pl:"PL", de:"DE", en:"EN"};
+const IDX = {de:0, sk:1, cs:2, pl:3, en:4};
+let L = "sk";
+let jazN = 0;
+
+const t = a => a[IDX[L]];
+const val = a => a[0];
+// odstrani diakritiku; ß sa berie ako ss, aby "schweisser" naslo "Schweißer"
+const norm = s => s.toLowerCase().replace(/ß/g,"ss").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const $ = id => document.getElementById(id);
+
+const T = {
+claim:["Menschen. Projekte. Zukunft.","Ľudia. Projekty. Budúcnosť.","Lidé. Projekty. Budoucnost.","Ludzie. Projekty. Przyszłość.","People. Projects. Future."],
+h1:["Bewerberregistrierung","Registrácia uchádzača","Registrace uchazeče","Rejestracja kandydata","Candidate registration"],
+lead:["Das Ausfüllen dauert etwa 3 Minuten. Je genauer Ihre Angaben, desto schneller finden wir passende Arbeit für Sie.",
+"Vyplnenie trvá približne 3 minúty. Čím presnejšie údaje uvediete, tým rýchlejšie vám vieme ponúknuť vhodnú prácu.",
+"Vyplnění trvá přibližně 3 minuty. Čím přesnější údaje uvedete, tím rychleji vám nabídneme vhodnou práci.",
+"Wypełnienie zajmuje około 3 minut. Im dokładniejsze dane, tym szybciej znajdziemy dla Ciebie pracę.",
+"It takes about 3 minutes. The more accurate your details, the faster we can find suitable work for you."],
+s1:["Kontaktdaten","Kontaktné údaje","Kontaktní údaje","Dane kontaktowe","Contact details"],
+f_meno:["Vor- und Nachname","Meno a priezvisko","Jméno a příjmení","Imię i nazwisko","Full name"],
+f_tel:["Telefonnummer","Telefónne číslo","Telefonní číslo","Numer telefonu","Phone number"],
+f_mail:["E-Mail","E-mail","E-mail","E-mail","Email"],
+f_dn:["Geburtsdatum","Dátum narodenia","Datum narození","Data urodzenia","Date of birth"],
+f_mesto:["Ort / Bezirk","Mesto / okres","Město / okres","Miasto / powiat","City / district"],
+f_pohl:["Geschlecht","Pohlavie","Pohlaví","Płeć","Gender"],
+opt:["— optional","— nepovinné","— nepovinné","— opcjonalne","— optional"],
+roky:["— Jahre","— roky","— roky","— lata","— years"],
+s2:["Gewünschte Position","O akú pozíciu mám záujem","O jakou pozici mám zájem","Interesujące stanowisko","Position of interest"],
+s2note:["Tippen Sie die Position ein oder wählen Sie aus der Liste.","Začnite písať názov pozície alebo si vyberte zo zoznamu.","Začněte psát název pozice nebo vyberte ze seznamu.","Zacznij pisać nazwę stanowiska lub wybierz z listy.","Start typing a position or pick from the list."],
+f_poz:["Position","Pozícia","Pozice","Stanowisko","Position"],
+poz_ph:["z. B. Schweißer, Elektriker, Lager…","napr. zvárač, elektrikár, skladník…","např. svářeč, elektrikář, skladník…","np. spawacz, elektryk, magazynier…","e.g. welder, electrician, warehouse…"],
+f_praxp:["Berufserfahrung in dieser Position","Prax na tejto pozícii","Praxe na této pozici","Doświadczenie na tym stanowisku","Experience in this role"],
+s3:["Branchen mit Berufserfahrung","Odvetvia, v ktorých mám prax","Obory, ve kterých mám praxi","Branże z doświadczeniem","Industries with experience"],
+s3note:["Branche ankreuzen und Anzahl der Jahre eintragen.","Zaškrtnite odvetvie a doplňte, koľko rokov v ňom máte odpracovaných.","Zaškrtněte obor a doplňte počet odpracovaných let.","Zaznacz branżę i podaj liczbę przepracowanych lat.","Tick an industry and add the number of years."],
+s4:["Sprachen und Ausbildung","Jazyky a vzdelanie","Jazyky a vzdělání","Języki i wykształcenie","Languages and education"],
+f_jaz:["Sprachkenntnisse","Jazykové znalosti","Jazykové znalosti","Znajomość języków","Language skills"],
+add_jaz:["+ Weitere Sprache hinzufügen","+ Pridať ďalší jazyk","+ Přidat další jazyk","+ Dodaj kolejny język","+ Add another language"],
+f_vzd:["Höchster Bildungsabschluss","Najvyššie dosiahnuté vzdelanie","Nejvyšší dosažené vzdělání","Najwyższe wykształcenie","Highest education"],
+vyberte:["— bitte wählen —","— vyberte —","— vyberte —","— wybierz —","— select —"],
+s5:["Nachweise und Zertifikate","Preukazy a certifikáty","Průkazy a certifikáty","Uprawnienia i certyfikaty","Certificates and licences"],
+s5note:["Kreuzen Sie alles an, was Sie gültig besitzen.","Zaškrtnite všetko, čo máte platné.","Zaškrtněte vše, co máte platné.","Zaznacz wszystko, co posiadasz ważne.","Tick everything you currently hold."],
+c_zvar:["Beherrschte Schweißverfahren","Zváračské metódy, ktoré ovládate","Svářečské metody, které ovládáte","Znane metody spawania","Welding processes you know"],
+c_elektro:["Umfang der Elektro-Qualifikation","Rozsah elektrotechnickej spôsobilosti","Rozsah elektrotechnické způsobilosti","Zakres uprawnień elektrycznych","Scope of electrical qualification"],
+f_kurzine:["Weitere Kurse oder Bescheinigungen","Ďalšie kurzy alebo osvedčenia","Další kurzy nebo osvědčení","Inne kursy lub zaświadczenia","Other courses or certificates"],
+s6:["Führerschein","Vodičský preukaz","Řidičský průkaz","Prawo jazdy","Driving licence"],
+f_vp:["Ihre Führerscheinklassen","Skupiny, ktoré vlastníte","Skupiny, které vlastníte","Posiadane kategorie","Categories you hold"],
+c_karta:["Haben Sie eine gültige Fahrerkarte / Code 95?","Máte platnú kartu vodiča / Code 95?","Máte platnou kartu řidiče / Code 95?","Czy masz ważną kartę kierowcy / Kod 95?","Do you hold a valid driver card / Code 95?"],
+s7:["Verfügbarkeit und Lebenslauf","Dostupnosť a životopis","Dostupnost a životopis","Dostępność i CV","Availability and CV"],
+f_dost:["Ab wann können Sie anfangen","Odkedy môžem nastúpiť","Odkdy mohu nastoupit","Od kiedy mogę zacząć","When you can start"],
+f_cv:["Lebenslauf","Životopis","Životopis","CV","CV"],
+cv_hint:["PDF oder Word. Ohne Lebenslauf genügen die obigen Angaben.","PDF alebo Word. Ak životopis nemáte, stačia údaje vyplnené vyššie.","PDF nebo Word. Pokud životopis nemáte, stačí údaje výše.","PDF lub Word. Jeśli nie masz CV, wystarczą powyższe dane.","PDF or Word. If you have no CV, the details above are enough."],
+gdpr1:["Ich nehme zur Kenntnis, dass meine personenbezogenen Daten zur Prüfung dieser Bewerbung verarbeitet und an einen konkreten Arbeitgeber in der EU weitergegeben werden können. Details in den",
+"Beriem na vedomie, že moje osobné údaje budú spracované na účely posúdenia tejto žiadosti o prácu a môžu byť poskytnuté konkrétnemu zamestnávateľovi v rámci EÚ. Podrobnosti v",
+"Beru na vědomí, že mé osobní údaje budou zpracovány pro účely posouzení této žádosti o práci a mohou být poskytnuty konkrétnímu zaměstnavateli v rámci EU. Podrobnosti v",
+"Przyjmuję do wiadomości, że moje dane osobowe będą przetwarzane w celu rozpatrzenia tego zgłoszenia i mogą zostać przekazane konkretnemu pracodawcy w UE. Szczegóły w",
+"I acknowledge that my personal data will be processed to assess this application and may be shared with a specific employer within the EU. Details in the"],
+gdpr1link:["Datenschutzinformationen von MRB","informáciách o spracovaní osobných údajov MRB","informacích o zpracování osobních údajů MRB","informacjach o przetwarzaniu danych osobowych MRB","MRB data protection information"],
+gdpr2:["Ich willige ein, für 3 Jahre in die Bewerberdatenbank aufgenommen und auch zu weiteren Stellenangeboten kontaktiert zu werden. Widerruf jederzeit per E-Mail möglich.",
+"Súhlasím so zaradením do databázy uchádzačov na obdobie 3 rokov a s tým, že ma môžete osloviť aj s ďalšími pracovnými ponukami. Súhlas môžem kedykoľvek odvolať e-mailom.",
+"Souhlasím se zařazením do databáze uchazečů na dobu 3 let a s tím, že mě můžete oslovit i s dalšími nabídkami. Souhlas mohu kdykoli odvolat e-mailem.",
+"Wyrażam zgodę na umieszczenie w bazie kandydatów na 3 lata i kontakt w sprawie innych ofert pracy. Zgodę mogę wycofać e-mailem w każdej chwili.",
+"I consent to being added to the candidate database for 3 years and to being contacted about other job offers. I may withdraw this consent by email at any time."],
+povinne:["Pflicht","Povinné","Povinné","Wymagane","Required"],
+dobrovolne:["Freiwillig","Dobrovoľné","Dobrovolné","Dobrowolne","Optional"],
+btn:["Bewerbung absenden","Odoslať prihlášku","Odeslat přihlášku","Wyślij zgłoszenie","Submit application"],
+done_h:["Bewerbung abgesendet","Prihláška odoslaná","Přihláška odeslána","Zgłoszenie wysłane","Application sent"],
+done_p:["Vielen Dank. Wir melden uns telefonisch oder per E-Mail, in der Regel innerhalb von zwei Werktagen.",
+"Ďakujeme. Ozveme sa vám telefonicky alebo e-mailom, spravidla do dvoch pracovných dní.",
+"Děkujeme. Ozveme se vám telefonicky nebo e-mailem, zpravidla do dvou pracovních dnů.",
+"Dziękujemy. Odezwiemy się telefonicznie lub mailowo, zwykle w ciągu dwóch dni roboczych.",
+"Thank you. We will contact you by phone or email, usually within two working days."],
+e_meno:["Bitte Vor- und Nachnamen angeben.","Uveďte prosím meno a priezvisko.","Uveďte prosím jméno a příjmení.","Podaj imię i nazwisko.","Please enter your full name."],
+e_tel:["Bitte Telefonnummer angeben.","Uveďte prosím telefónne číslo.","Uveďte prosím telefonní číslo.","Podaj numer telefonu.","Please enter your phone number."],
+e_mail:["Bitte E-Mail-Format prüfen.","Skontrolujte prosím tvar e-mailovej adresy.","Zkontrolujte prosím tvar e-mailu.","Sprawdź poprawność adresu e-mail.","Please check the email format."],
+e_poz:["Bitte Position wählen.","Vyberte prosím pozíciu.","Vyberte prosím pozici.","Wybierz stanowisko.","Please select a position."],
+c_inapoz:["Welche Position genau? Bitte eintragen.","Akú pozíciu presne? Napíšte nám ju.","Jakou pozici přesně? Napište nám ji.","Jakie dokładnie stanowisko? Wpisz je.","Which position exactly? Please write it in."],
+inapoz_ph:["z. B. Kellner, Gärtner, Fahrer…","napr. čašník, záhradník, vodič…","např. číšník, zahradník, řidič…","np. kelner, ogrodnik, kierowca…","e.g. waiter, gardener, driver…"],
+nenajdene:["Nichts gefunden. Wählen Sie „Andere Position“ und tragen Sie sie selbst ein.","Nič nenájdené. Vyberte „Iná pozícia“ a napíšte nám ju vlastnými slovami.","Nic nenalezeno. Vyberte „Jiná pozice“ a napište nám ji vlastními slovy.","Nic nie znaleziono. Wybierz „Inne stanowisko“ i wpisz je własnymi słowami.","Nothing found. Choose “Other position” and write it in yourself."],
+doplnte:["Bitte noch ergänzen: ","Ešte doplňte: ","Ještě doplňte: ","Uzupełnij jeszcze: ","Still missing: "],
+err_suhlas:["Pflicht-Einwilligung","povinný súhlas","povinný souhlas","wymagana zgoda","required consent"],
+roky_ph:["Jahre","roky","roky","lata","years"],
+odosielam:["Wird gesendet…","Odosielam…","Odesílám…","Wysyłanie…","Sending…"],
+chyba_odoslania:["Senden fehlgeschlagen. Bitte Internetverbindung prüfen und erneut versuchen.",
+"Odoslanie zlyhalo. Skontrolujte pripojenie na internet a skúste to znova.",
+"Odeslání selhalo. Zkontrolujte připojení k internetu a zkuste to znovu.",
+"Wysyłanie nie powiodło się. Sprawdź połączenie z internetem i spróbuj ponownie.",
+"Sending failed. Please check your internet connection and try again."],
+jaz_ph:["Weitere Sprache","Ďalší jazyk","Další jazyk","Kolejny język","Another language"]
+};
+
+const POHLAVIE=[["Männlich","Muž","Muž","Mężczyzna","Male"],["Weiblich","Žena","Žena","Kobieta","Female"],["Keine Angabe","Neuvádzam","Neuvádím","Nie podaję","Not specified"]];
+const VZDELANIE=[["Grundschule","Základné","Základní","Podstawowe","Primary"],["Lehre ohne Abitur","Vyučený (bez maturity)","Vyučen (bez maturity)","Zasadnicze zawodowe","Vocational"],["Abitur","Stredoškolské s maturitou","Středoškolské s maturitou","Średnie","Secondary with diploma"],["Hochschule","Vysokoškolské","Vysokoškolské","Wyższe","University"]];
+const DOSTUPNOST=[["Sofort","Ihneď","Ihned","Od zaraz","Immediately"],["Innerhalb von 2 Wochen","Do 2 týždňov","Do 2 týdnů","W ciągu 2 tygodni","Within 2 weeks"],["Innerhalb eines Monats","Do mesiaca","Do měsíce","W ciągu miesiąca","Within a month"],["Nach Vereinbarung","Dohodou","Dohodou","Do uzgodnienia","By agreement"]];
+const ANO_NIE=[["Ja","Áno","Ano","Tak","Yes"],["Nein","Nie","Ne","Nie","No"]];
+const UROVNE=[["Keine","Neovládam","Neovládám","Nie znam","None"],["A1","A1","A1","A1","A1"],["A2","A2","A2","A2","A2"],["B1","B1","B1","B1","B1"],["B2","B2","B2","B2","B2"],["C1","C1","C1","C1","C1"],["C2","C2","C2","C2","C2"],["Muttersprache","Materinský jazyk","Mateřský jazyk","Język ojczysty","Native"]];
+const JAZ_PEVNE=[["Deutsch","Nemčina","Němčina","Niemiecki","German"],["Englisch","Angličtina","Angličtina","Angielski","English"]];
+const VODICAK=[["B","B","B","B","B"],["BE","BE","BE","BE","BE"],["C","C","C","C","C"],["CE","CE","CE","CE","CE"],["D","D","D","D","D"],["T","T","T","T","T"],["Keiner","Žiadny","Žádný","Brak","None"]];
+
+const ODVETVIA=[
+["Bauwesen","Stavebníctvo","Stavebnictví","Budownictwo","Construction"],
+["Produktion und Industrie","Výroba a priemysel","Výroba a průmysl","Produkcja i przemysł","Production and industry"],
+["Lager und Logistik","Sklad a logistika","Sklad a logistika","Magazyn i logistyka","Warehouse and logistics"],
+["Schweißen und Metallbau","Zváranie a kovovýroba","Svařování a kovovýroba","Spawanie i konstrukcje metalowe","Welding and metalwork"],
+["Elektro und Elektroinstallation","Elektro a elektroinštalácie","Elektro a elektroinstalace","Elektryka i instalacje","Electrical work"],
+["Maschinenbau und Montage","Strojárstvo a montáž","Strojírenství a montáž","Budowa maszyn i montaż","Engineering and assembly"],
+["Transport","Doprava","Doprava","Transport","Transport"],
+["Reinigung und Instandhaltung","Upratovanie a údržba","Úklid a údržba","Sprzątanie i utrzymanie","Cleaning and maintenance"],
+["Landwirtschaft","Poľnohospodárstvo","Zemědělství","Rolnictwo","Agriculture"],
+["Gastronomie","Gastro","Gastro","Gastronomia","Hospitality"],
+["Sonstige","Iné","Jiné","Inne","Other"]];
+
+const KURZY=[
+[["Schweißerpass","Zváračský preukaz","Svářečský průkaz","Uprawnienia spawalnicze","Welding certificate"],"c-zvar"],
+[["Elektrofachkraft-Nachweis","Elektrotechnická spôsobilosť","Elektrotechnická způsobilost","Uprawnienia elektryczne SEP","Electrical qualification"],"c-elektro"],
+[["Gasgeräte","Plynové zariadenia","Plynová zařízení","Urządzenia gazowe","Gas equipment"],null],
+[["Staplerschein","VZV — vysokozdvižný vozík","VZV — vysokozdvižný vozík","Uprawnienia na wózki widłowe","Forklift licence"],null],
+[["Anschlägerschein","Viazač bremien","Vazač břemen","Uprawnienia hakowego","Slinger certificate"],null],
+[["Kranschein","Žeriavnik","Jeřábník","Uprawnienia na żurawie","Crane licence"],null],
+[["Höhenarbeiten","Práca vo výškach","Práce ve výškách","Praca na wysokości","Work at heights"],null],
+[["Gerüstbau","Lešenárske práce","Lešenářské práce","Rusztowania","Scaffolding"],null],
+[["Hubarbeitsbühne","Zdvíhacia plošina","Zdvihací plošina","Podnośnik koszowy","Aerial work platform"],null],
+[["Erste Hilfe","Kurz prvej pomoci","Kurz první pomoci","Kurs pierwszej pomocy","First aid"],null]];
+
+const POZICIE=[
+[["Schweißen und Metallbau","Zváranie a kovovýroba","Svařování a kovovýroba","Spawanie i konstrukcje","Welding and metalwork"],[
+["MAG-Schweißer (135)","MAG zvárač (metóda 135)","MAG svářeč (metoda 135)","Spawacz MAG (metoda 135)","MAG welder (135)"],
+["MIG/MAG-Schweißer","MIG/MAG zvárač","MIG/MAG svářeč","Spawacz MIG/MAG","MIG/MAG welder"],
+["WIG-Schweißer","TIG zvárač","TIG svářeč","Spawacz TIG","TIG welder"],
+["Rohrschweißer","Rúrkový zvárač","Trubkový svářeč","Spawacz rurociągów","Pipe welder"],
+["Schweißer — anderes Verfahren","Zvárač — iná metóda","Svářeč — jiná metoda","Spawacz — inna metoda","Welder — other process"],
+["Schweißaufsicht","Zváračský dozor","Svářečský dozor","Nadzór spawalniczy","Welding supervisor"],
+["Schlosser — Stahlkonstruktionen","Zámočník — oceľové konštrukcie","Zámečník — ocelové konstrukce","Ślusarz — konstrukcje stalowe","Metalworker — steel structures"],
+["Metallbauer","Kovovýroba / Metallbauer","Kovovýroba / Metallbauer","Konstrukcje metalowe","Metal fabricator"],
+["Konstruktionsmechaniker","Konštrukčný mechanik","Konstrukční mechanik","Mechanik konstrukcji","Construction mechanic"],
+["Produktionsmitarbeiter — Stahlbau","Výrobný pracovník — oceľové konštrukcie","Výrobní pracovník — ocelové konstrukce","Pracownik produkcji — konstrukcje stalowe","Production worker — steel"]]],
+[["Elektro und Technik","Elektro a technika","Elektro a technika","Elektryka i technika","Electrical and technical"],[
+["Industrieelektriker","Priemyselný elektrikár","Průmyslový elektrikář","Elektryk przemysłowy","Industrial electrician"],
+["Elektriker","Elektrikár","Elektrikář","Elektryk","Electrician"],
+["Elektromonteur","Elektromontér","Elektromontér","Elektromonter","Electrical fitter"],
+["Elektroniker für Betriebstechnik","Elektronik pre prevádzkovú techniku","Elektronik pro provozní techniku","Elektronik urządzeń przemysłowych","Industrial electronics technician"],
+["Elektroniker / Instandhalter","Elektronik / údržbár — elektrotechnika","Elektronik / údržbář — elektrotechnika","Elektronik / konserwator","Electronics maintenance technician"],
+["Mechatroniker für Maschinen","Mechatronik pre stroje a zariadenia","Mechatronik pro stroje a zařízení","Mechatronik maszyn i urządzeń","Mechatronics technician"]]],
+[["Produktion und Maschinenbau","Výroba a strojárstvo","Výroba a strojírenství","Produkcja i budowa maszyn","Production and engineering"],[
+["Anlagenführer (Extrusion)","Obsluha výrobných liniek (extrúzia)","Obsluha výrobních linek (extruze)","Operator linii (ekstruzja)","Line operator (extrusion)"],
+["Produktionsmitarbeiter","Operátor výroby","Operátor výroby","Operator produkcji","Production operator"],
+["CNC-Bediener","Obsluha CNC","Obsluha CNC","Operator CNC","CNC operator"],
+["Dreher / Fräser","Sústružník / frézar","Soustružník / frézař","Tokarz / frezer","Turner / miller"],
+["Mechaniker","Mechanik","Mechanik","Mechanik","Mechanic"],
+["Monteur","Montér","Montér","Monter","Fitter"],
+["Servicemonteur","Servisný montér","Servisní montér","Monter serwisowy","Service fitter"],
+["Hydraulikmonteur","Hydraulik-montér","Hydraulik-montér","Monter hydrauliki","Hydraulics fitter"],
+["Komplettierungsmitarbeiter","Kompletačný pracovník","Kompletační pracovník","Pracownik kompletacji","Assembly worker"],
+["Industrielackierer","Priemyselný lakovník","Průmyslový lakýrník","Lakiernik przemysłowy","Industrial painter"],
+["Korrosionsschutzarbeiter","Protikorózny ochranca","Antikorozní ochrana","Pracownik antykorozji","Corrosion protection worker"],
+["Produktionshelfer","Pomocný pracovník — výroba","Pomocný pracovník — výroba","Pomocnik produkcji","Production helper"]]],
+[["Qualität und Prüfung","Kvalita a kontrola","Kvalita a kontrola","Jakość i kontrola","Quality and inspection"],[
+["Qualitätskontrolleur","Kontrolór kvality","Kontrolor kvality","Kontroler jakości","Quality inspector"],
+["Werkstoffprüfer / ZfP","Skúšobný technik materiálov / ZfP","Zkušební technik materiálů / NDT","Technik badań materiałów / NDT","Materials tester / NDT"]]],
+[["Krane und Lasten","Žeriavy a bremená","Jeřáby a břemena","Dźwigi i ładunki","Cranes and loads"],[
+["Kranführer — Schwerlastkrane","Žeriavnik / obsluha ťažkých žeriavov","Jeřábník / obsluha těžkých jeřábů","Operator żurawi ciężkich","Heavy crane operator"],
+["Monteur für Hafenkrane","Montér pre námorné žeriavy","Montér pro námořní jeřáby","Monter żurawi portowych","Marine crane fitter"],
+["Anschläger","Viazač bremien","Vazač břemen","Hakowy","Slinger"],
+["Kransignalgeber","Signalista / navádzač žeriavov","Signalista / naváděč jeřábů","Sygnalista dźwigowy","Crane signaller"]]],
+[["Lager und Transport","Sklad a doprava","Sklad a doprava","Magazyn i transport","Warehouse and transport"],[
+["Lagerarbeiter","Skladník","Skladník","Magazynier","Warehouse worker"],
+["Staplerfahrer","Vodič VZV","Řidič VZV","Operator wózka widłowego","Forklift driver"],
+["LKW-Fahrer","Vodič nákladného vozidla","Řidič nákladního vozidla","Kierowca ciężarówki","Truck driver"],
+["Lagerhelfer","Pomocný pracovník — sklad","Pomocný pracovník — sklad","Pomocnik magazynowy","Warehouse helper"]]],
+[["Bauwesen","Stavebníctvo","Stavebnictví","Budownictwo","Construction"],[
+["Maurer","Murár","Zedník","Murarz","Bricklayer"],
+["Zimmerer","Tesár","Tesař","Cieśla","Carpenter"],
+["Fliesenleger","Obkladač","Obkladač","Glazurnik","Tiler"],
+["Maler","Maliar","Malíř","Malarz","Painter"],
+["Trockenbauer","Sadrokartonár","Sádrokartonář","Monter płyt g-k","Drywall installer"],
+["Isolierer","Izolatér","Izolatér","Izolator","Insulation worker"],
+["Gerüstbauer","Lešenár","Lešenář","Rusztowaniarz","Scaffolder"],
+["Bauhelfer","Stavebný robotník","Stavební dělník","Pracownik budowlany","Construction labourer"]]],
+[["Gastronomie und Hotellerie","Gastro a hotelierstvo","Gastro a hotelnictví","Gastronomia i hotelarstwo","Hospitality"],[
+["Kellner / Kellnerin","Čašník / čašníčka","Číšník / servírka","Kelner / kelnerka","Waiter / waitress"],
+["Koch / Köchin","Kuchár / kuchárka","Kuchař / kuchařka","Kucharz / kucharka","Cook"],
+["Küchenhilfe","Pomocník v kuchyni","Pomocník v kuchyni","Pomoc kuchenna","Kitchen assistant"],
+["Spülkraft","Umývač riadu","Myč nádobí","Pomoc przy zmywaku","Dishwasher"],
+["Zimmermädchen / Roomboy","Chyžná / chyžný","Pokojská / pokojský","Pokojówka","Housekeeper"],
+["Rezeptionist / Rezeptionistin","Recepčný / recepčná","Recepční","Recepcjonista","Receptionist"],
+["Barkeeper","Barman / barmanka","Barman / barmanka","Barman","Bartender"],
+["Servicekraft","Pracovník obsluhy","Pracovník obsluhy","Pracownik obsługi","Service staff"]]],
+[["Sonstige","Ostatné","Ostatní","Pozostałe","Other"],[
+["Reinigungskraft","Upratovanie","Úklid","Sprzątanie","Cleaning"],
+["Andere Position","Iná pozícia","Jiná pozice","Inne stanowisko","Other position"]]]
+];
+
+/* ---------- prepinac ---------- */
+LANGS.forEach(code => {
+  const b = document.createElement("button");
+  b.type = "button"; b.textContent = LANG_LABEL[code]; b.dataset.l = code;
+  b.addEventListener("click", () => prepni(code));
+  $("langs").appendChild(b);
+});
+function prepni(code){
+  L = code;
+  document.documentElement.lang = code;
+  const lf = $("formLang");
+  if (lf) lf.value = code;
+  [...$("langs").children].forEach(b => b.classList.toggle("on", b.dataset.l === code));
+  vykresliVsetko();
+}
+
+/* ---------- vykreslenie ---------- */
+function chipSkupina(box, zoznam, meno, typ){
+  const zvolene = [...box.querySelectorAll("input:checked")].map(i => i.value);
+  box.innerHTML = "";
+  zoznam.forEach(item => {
+    const l = document.createElement("label");
+    const inp = document.createElement("input");
+    inp.type = typ; inp.name = meno; inp.value = val(item);
+    if (zvolene.includes(val(item))) inp.checked = true;
+    l.appendChild(inp);
+    l.appendChild(document.createTextNode(t(item)));
+    box.appendChild(l);
+  });
+}
+
+function vykresliVsetko(){
+  document.querySelectorAll("[data-t]").forEach(el => {
+    const k = el.dataset.t;
+    if (T[k]) el.textContent = t(T[k]);
+  });
+  $("cbIn").placeholder = t(T.poz_ph);
+  $("praxP").placeholder = t(T.roky_ph);
+
+  chipSkupina($("pohl"), POHLAVIE, "Geschlecht", "radio");
+  chipSkupina($("dost"), DOSTUPNOST, "Verfuegbarkeit", "radio");
+  chipSkupina($("karta"), ANO_NIE, "Fahrerkarte", "radio");
+  vykresliVodicak();
+  vykresliKurzy();
+  vykresliOdvetvia();
+  vykresliJazyky();
+
+  const sel = $("vzd"), predch = sel.value;
+  sel.innerHTML = '<option value="">' + t(T.vyberte) + '</option>';
+  VZDELANIE.forEach(v => {
+    const o = document.createElement("option");
+    o.value = val(v); o.textContent = t(v);
+    if (val(v) === predch) o.selected = true;
+    sel.appendChild(o);
+  });
+
+  const pv = $("poziciaVal").value;
+  if (pv){
+    for (const par of POZICIE){
+      const najdene = par[1].find(p => val(p) === pv);
+      if (najdene){ $("cbSelTxt").textContent = t(najdene); break; }
+    }
+    $("c-inapoz").classList.toggle("on", pv === "Andere Position");
+  }
+  $("inaPoz").placeholder = t(T.inapoz_ph);
+  prepocitaj();
+}
+
+function vykresliVodicak(){
+  const box = $("vp");
+  const zvolene = [...box.querySelectorAll("input:checked")].map(i => i.value);
+  box.innerHTML = "";
+  VODICAK.forEach(sk => {
+    const l = document.createElement("label");
+    const inp = document.createElement("input");
+    inp.type = "checkbox"; inp.name = "Fuehrerschein"; inp.value = val(sk);
+    if (zvolene.includes(val(sk))) inp.checked = true;
+    inp.addEventListener("change", () => {
+      if (val(sk) === "Keiner" && inp.checked){
+        box.querySelectorAll("input").forEach(i => { if (i !== inp) i.checked = false; });
+      } else if (inp.checked){
+        const z = [...box.querySelectorAll("input")].find(i => i.value === "Keiner");
+        if (z) z.checked = false;
+      }
+      obnovKartu();
+      prepocitaj();
+    });
+    l.appendChild(inp);
+    l.appendChild(document.createTextNode(t(sk)));
+    box.appendChild(l);
+  });
+  obnovKartu();
+}
+function obnovKartu(){
+  const profi = [...$("vp").querySelectorAll("input:checked")].some(i => ["C","CE","D"].includes(i.value));
+  $("c-karta").classList.toggle("on", profi);
+}
+
+function vykresliKurzy(){
+  const box = $("kurzy");
+  const zvolene = [...box.querySelectorAll("input:checked")].map(i => i.value);
+  box.innerHTML = "";
+  KURZY.forEach(par => {
+    const nazov = par[0], condId = par[1];
+    const l = document.createElement("label");
+    const inp = document.createElement("input");
+    inp.type = "checkbox"; inp.name = "Zertifikate"; inp.value = val(nazov);
+    if (zvolene.includes(val(nazov))) inp.checked = true;
+    inp.addEventListener("change", () => {
+      if (condId) $(condId).classList.toggle("on", inp.checked);
+      prepocitaj();
+    });
+    l.appendChild(inp);
+    l.appendChild(document.createTextNode(t(nazov)));
+    box.appendChild(l);
+    if (condId) $(condId).classList.toggle("on", inp.checked);
+  });
+}
+
+function vykresliOdvetvia(){
+  const box = $("odv");
+  const stav = [...box.querySelectorAll(".odv-r")].map(r => ({
+    z: r.querySelector("input[type=checkbox]").checked,
+    roky: r.querySelector("input[type=number]").value
+  }));
+  box.innerHTML = "";
+  ODVETVIA.forEach((nazov, i) => {
+    const r = document.createElement("div");
+    r.className = "odv-r";
+    const lab = document.createElement("label");
+    const chk = document.createElement("input");
+    chk.type = "checkbox"; chk.name = "Branchen"; chk.value = val(nazov);
+    lab.appendChild(chk);
+    lab.appendChild(document.createTextNode(t(nazov)));
+    const num = document.createElement("input");
+    num.type = "number"; num.name = "Jahre_" + val(nazov);
+    num.min = 0; num.max = 60; num.inputMode = "numeric";
+    num.placeholder = t(T.roky_ph); num.disabled = true;
+    if (stav[i]){
+      chk.checked = stav[i].z;
+      num.disabled = !stav[i].z;
+      num.value = stav[i].roky;
+      r.classList.toggle("on", stav[i].z);
+    }
+    chk.addEventListener("change", () => {
+      num.disabled = !chk.checked;
+      r.classList.toggle("on", chk.checked);
+      if (!chk.checked) num.value = ""; else num.focus();
+      prepocitaj();
+    });
+    r.appendChild(lab); r.appendChild(num);
+    box.appendChild(r);
+  });
+}
+
+function urovneOptions(zvolena){
+  return UROVNE.map(u =>
+    '<option value="'+val(u)+'"'+(val(u)===zvolena?' selected':'')+'>'+t(u)+'</option>').join("");
+}
+
+function vykresliJazyky(){
+  const box = $("jaz");
+  const stav = [...box.querySelectorAll(".jz")].map(r => {
+    const txt = r.querySelector("input[type=text]");
+    return { extra: r.classList.contains("extra"), nazov: txt ? txt.value : null, uroven: r.querySelector("select").value };
+  });
+  box.innerHTML = ""; jazN = 0;
+  if (!stav.length){
+    JAZ_PEVNE.forEach(j => riadokJazyka(j, true, "Keine"));
+  } else {
+    let pevnyIdx = 0;
+    stav.forEach(s => {
+      if (s.extra) riadokJazyka(null, false, s.uroven, s.nazov);
+      else riadokJazyka(JAZ_PEVNE[pevnyIdx++], true, s.uroven);
+    });
+  }
+}
+
+function riadokJazyka(jazyk, pevny, uroven, nazovText){
+  jazN++;
+  const id = "jz"+jazN;
+  const row = document.createElement("div");
+  row.className = "jz" + (pevny ? "" : " extra");
+  row.id = id;
+  if (pevny){
+    row.innerHTML = '<span class="nm">'+t(jazyk)+'</span>' +
+      '<select name="Sprache_'+val(jazyk)+'">'+urovneOptions(uroven)+'</select>';
+  } else {
+    row.innerHTML =
+      '<input type="text" name="Sprache_weitere_'+jazN+'" placeholder="'+t(T.jaz_ph)+'" value="'+(nazovText||"")+'">' +
+      '<select name="Sprache_weitere_Niveau_'+jazN+'">'+urovneOptions(uroven)+'</select>' +
+      '<button type="button" class="xbtn">✕</button>';
+    row.querySelector(".xbtn").addEventListener("click", () => { row.remove(); prepocitaj(); });
+  }
+  row.querySelectorAll("select,input").forEach(el => el.addEventListener("change", prepocitaj));
+  $("jaz").appendChild(row);
+}
+function pridajJazyk(){ riadokJazyka(null, false, "Keine"); }
+
+/* ---------- combobox ---------- */
+const cbIn = $("cbIn"), cbPop = $("cbPop"), cbSel = $("cbSel");
+let hiIdx = -1;
+
+function vykresliPop(filter){
+  const q = norm(filter.trim());
+  cbPop.innerHTML = "";
+  let pocet = 0;
+  POZICIE.forEach(par => {
+    const skupina = par[0], polozky = par[1];
+    // hlada sa vo vsetkych jazykovych variantoch naraz — kandidat najde
+    // poziciu aj ked ju napise po svojom (napr. "kelner" v SK rezime)
+    const zhody = polozky.filter(p => !q || p.some(variant => norm(variant).includes(q)));
+    if (!zhody.length) return;
+    const gh = document.createElement("div");
+    gh.className = "cb-grp"; gh.textContent = t(skupina);
+    cbPop.appendChild(gh);
+    zhody.forEach(p => {
+      const o = document.createElement("div");
+      o.className = "cb-opt"; o.setAttribute("role","option");
+      o.textContent = t(p); o.dataset.v = val(p);
+      o.addEventListener("mousedown", e => { e.preventDefault(); vyberPoziciu(val(p), t(p)); });
+      cbPop.appendChild(o); pocet++;
+    });
+  });
+  if (!pocet) cbPop.innerHTML = '<div class="cb-empty">'+t(T.nenajdene)+'</div>';
+  hiIdx = -1;
+}
+function otvorPop(){ cbPop.classList.add("on"); cbIn.setAttribute("aria-expanded","true"); }
+function zavriPop(){ cbPop.classList.remove("on"); cbIn.setAttribute("aria-expanded","false"); }
+function vyberPoziciu(hodnotaDE, popis){
+  const napisane = cbIn.value.trim();
+  $("poziciaVal").value = hodnotaDE;
+  $("cbSelTxt").textContent = popis;
+  cbSel.classList.add("on");
+  cbIn.value = ""; cbIn.style.display = "none";
+  document.querySelector(".cb-ic").style.display = "none";
+  zavriPop(); $("e-poz").classList.remove("on");
+
+  // pri "Ina pozicia" ponukneme volne pole a predvyplnime, co uz napisal
+  const ine = hodnotaDE === "Andere Position";
+  $("c-inapoz").classList.toggle("on", ine);
+  if (ine){
+    if (napisane && !$("inaPoz").value) $("inaPoz").value = napisane;
+    $("inaPoz").focus();
+  } else {
+    $("inaPoz").value = "";
+  }
+  prepocitaj();
+}
+function zrusPoziciu(){
+  $("poziciaVal").value = "";
+  cbSel.classList.remove("on");
+  $("c-inapoz").classList.remove("on");
+  $("inaPoz").value = "";
+  cbIn.style.display = ""; document.querySelector(".cb-ic").style.display = "";
+  cbIn.focus(); prepocitaj();
+}
+cbIn.addEventListener("focus", () => { vykresliPop(cbIn.value); otvorPop(); });
+cbIn.addEventListener("input", () => { vykresliPop(cbIn.value); otvorPop(); });
+cbIn.addEventListener("blur", () => setTimeout(zavriPop, 120));
+cbIn.addEventListener("keydown", e => {
+  const opts = [...cbPop.querySelectorAll(".cb-opt")];
+  if (!opts.length) return;
+  if (e.key === "ArrowDown" || e.key === "ArrowUp"){
+    e.preventDefault();
+    hiIdx += (e.key === "ArrowDown" ? 1 : -1);
+    if (hiIdx < 0) hiIdx = opts.length-1;
+    if (hiIdx >= opts.length) hiIdx = 0;
+    opts.forEach(o => o.classList.remove("hi"));
+    opts[hiIdx].classList.add("hi");
+    if (opts[hiIdx].scrollIntoView) opts[hiIdx].scrollIntoView({block:"nearest"});
+  } else if (e.key === "Enter" && hiIdx >= 0){
+    e.preventDefault();
+    vyberPoziciu(opts[hiIdx].dataset.v, opts[hiIdx].textContent);
+  } else if (e.key === "Escape") zavriPop();
+});
+
+/* ---------- ukazovatel ---------- */
+const SLED = ["meno","tel","mail","dn","mesto","praxP","vzd","cv","kurzIne"];
+function prepocitaj(){
+  let hot = 0, spolu = 0;
+  SLED.forEach(id => { const el = $(id); if (!el) return; spolu++; if (el.value) hot++; });
+  spolu++; if ($("poziciaVal").value) hot++;
+  ["Geschlecht","Verfuegbarkeit"].forEach(n => { spolu++; if (document.querySelector('input[name="'+n+'"]:checked')) hot++; });
+  ["Branchen","Zertifikate","Fuehrerschein"].forEach(n => { spolu++; if (document.querySelector('input[name="'+n+'"]:checked')) hot++; });
+  spolu++; if ([...document.querySelectorAll('#jaz select')].some(s => s.value !== "Keine")) hot++;
+  spolu++; if ($("s1").checked) hot++;
+  $("progBar").style.width = Math.round(hot/spolu*100) + "%";
+}
+document.addEventListener("input", prepocitaj);
+document.addEventListener("change", prepocitaj);
+
+/* ---------- validacia ---------- */
+function chybne(el, errId, podm){
+  const zle = podm();
+  el.classList.toggle("bad", zle);
+  $(errId).classList.toggle("on", zle);
+  return zle;
+}
+const zlyMail = () => {
+  const v = $("mail").value.trim();
+  return v !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+};
+$("meno").addEventListener("blur", () => chybne($("meno"),"e-meno", () => !$("meno").value.trim()));
+$("tel").addEventListener("blur",  () => chybne($("tel"),"e-tel",  () => !$("tel").value.trim()));
+$("mail").addEventListener("blur", () => chybne($("mail"),"e-mail", zlyMail));
+
+/* ---------- odoslanie (prototyp) ---------- */
+$("frm").addEventListener("submit", e => {
+  e.preventDefault();
+  const chyby = [];
+  if (chybne($("meno"),"e-meno", () => !$("meno").value.trim())) chyby.push(t(T.f_meno));
+  if (chybne($("tel"),"e-tel",   () => !$("tel").value.trim()))  chyby.push(t(T.f_tel));
+  if (chybne($("mail"),"e-mail", zlyMail)) chyby.push(t(T.f_mail));
+  if (!$("poziciaVal").value){ $("e-poz").classList.add("on"); chyby.push(t(T.f_poz)); }
+  if (!$("s1").checked) chyby.push(t(T.err_suhlas));
+
+  const box = $("formErr");
+  if (chyby.length){
+    box.textContent = t(T.doplnte) + chyby.join(", ") + ".";
+    box.classList.add("on");
+    const prve = document.querySelector(".bad, .errmsg.on");
+    if (prve && prve.scrollIntoView) prve.scrollIntoView({block:"center"});
+    return;
+  }
+  box.classList.remove("on");
+
+  const tlacidlo = $("frm").querySelector(".send");
+  tlacidlo.disabled = true;
+  tlacidlo.textContent = t(T.odosielam);
+
+  const data = new FormData($("frm"));
+  data.set("Formularsprache", L);
+
+  fetch("/", { method: "POST", body: data })
+    .then(r => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      $("frm").style.display = "none";
+      $("done").classList.add("on");
+      window.scrollTo({top:0, behavior:"smooth"});
+    })
+    .catch(err => {
+      console.error("Odoslanie zlyhalo:", err);
+      tlacidlo.disabled = false;
+      tlacidlo.textContent = t(T.btn);
+      box.textContent = t(T.chyba_odoslania);
+      box.classList.add("on");
+    });
+});
+
+prepni("sk");
+</script>
+</body>
+</html>
