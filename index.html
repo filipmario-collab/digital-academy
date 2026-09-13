@@ -883,7 +883,23 @@ $("meno").addEventListener("blur", () => chybne($("meno"),"e-meno", () => !$("me
 $("tel").addEventListener("blur",  () => chybne($("tel"),"e-tel",  () => !$("tel").value.trim()));
 $("mail").addEventListener("blur", () => chybne($("mail"),"e-mail", zlyMail));
 
-/* ---------- odoslanie (prototyp) ---------- */
+/* ---------- odoslanie ---------- */
+
+// Odstrani z formulara vsetky prazdne polia pred odoslanim — inak Netlify
+// posle mail so vsetkymi deklarovanymi polami vratane tych nevyplnenych
+// (napr. "Jahre Bauwesen:" bez hodnoty, ked odvetvie vobec nie je zaskrtnute).
+function ocistiPrazdnePolia(fd){
+  const cista = new FormData();
+  for (const [kluc, hodnota] of fd.entries()){
+    if (hodnota instanceof File){
+      if (hodnota.size > 0) cista.append(kluc, hodnota);
+    } else if (String(hodnota).trim() !== ""){
+      cista.append(kluc, hodnota);
+    }
+  }
+  return cista;
+}
+
 $("frm").addEventListener("submit", e => {
   e.preventDefault();
   const chyby = [];
@@ -907,8 +923,9 @@ $("frm").addEventListener("submit", e => {
   tlacidlo.disabled = true;
   tlacidlo.textContent = t(T.odosielam);
 
-  const data = new FormData($("frm"));
+  let data = new FormData($("frm"));
   data.set("Formularsprache", L);
+  data = ocistiPrazdnePolia(data);
 
   fetch("/", { method: "POST", body: data })
     .then(r => {
