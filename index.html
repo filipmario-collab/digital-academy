@@ -165,27 +165,13 @@ textarea{min-height:76px;resize:vertical;}
   <input type="text" name="Ort">
   <input type="text" name="Geschlecht">
   <input type="text" name="Position">
-  <input type="text" name="Position_eigene">
   <input type="number" name="Berufsjahre_Position">
-  <input type="text" name="Branchen">
-  <input type="text" name="Jahre_Bauwesen">
-  <input type="text" name="Jahre_Produktion und Industrie">
-  <input type="text" name="Jahre_Lager und Logistik">
-  <input type="text" name="Jahre_Schweißen und Metallbau">
-  <input type="text" name="Jahre_Elektro und Elektroinstallation">
-  <input type="text" name="Jahre_Maschinenbau und Montage">
-  <input type="text" name="Jahre_Transport">
-  <input type="text" name="Jahre_Reinigung und Instandhaltung">
-  <input type="text" name="Jahre_Landwirtschaft">
-  <input type="text" name="Jahre_Gastronomie">
-  <input type="text" name="Jahre_Sonstige">
+  <input type="text" name="Branchenerfahrung">
   <input type="text" name="Sprache_Deutsch">
   <input type="text" name="Sprache_Englisch">
   <input type="text" name="Sprache_weitere">
   <input type="text" name="Ausbildung">
   <input type="text" name="Zertifikate">
-  <input type="text" name="Schweissverfahren">
-  <input type="text" name="Elektro_Umfang">
   <textarea name="Weitere_Zertifikate"></textarea>
   <input type="text" name="Fuehrerschein">
   <input type="text" name="Fahrerkarte">
@@ -218,6 +204,8 @@ textarea{min-height:76px;resize:vertical;}
     <form id="frm" method="POST" enctype="multipart/form-data" novalidate>
       <input type="hidden" name="form-name" value="bewerbung">
       <input type="hidden" name="Formularsprache" id="formLang" value="sk">
+    <input type="hidden" name="Branchenerfahrung" id="branchErf">
+    <input type="hidden" name="Sprache_weitere" id="jazWeitereOut">
       <p style="display:none"><label>Nevypĺňať <input name="bot-field"></label></p>
 
       <div class="sec">
@@ -265,7 +253,7 @@ textarea{min-height:76px;resize:vertical;}
           <div class="errmsg" id="e-poz" data-t="e_poz"></div>
           <div class="cond" id="c-inapoz">
             <span class="lbl" data-t="c_inapoz"></span>
-            <input type="text" name="Position_eigene" id="inaPoz">
+            <input type="text" id="inaPoz">
           </div>
         </div>
         <div class="f">
@@ -300,11 +288,11 @@ textarea{min-height:76px;resize:vertical;}
           <div class="chips" id="kurzy"></div>
           <div class="cond" id="c-zvar">
             <span class="lbl" data-t="c_zvar"></span>
-            <input type="text" name="Schweissverfahren" placeholder="135, 141, 111, 311">
+            <input type="text" placeholder="135, 141, 111, 311">
           </div>
           <div class="cond" id="c-elektro">
             <span class="lbl" data-t="c_elektro"></span>
-            <input type="text" name="Elektro_Umfang">
+            <input type="text">
           </div>
         </div>
         <div class="f">
@@ -683,6 +671,8 @@ function vykresliKurzy(){
     const l = document.createElement("label");
     const inp = document.createElement("input");
     inp.type = "checkbox"; inp.name = "Zertifikate"; inp.value = val(nazov);
+    inp.dataset.zaklad = val(nazov);
+    if (condId) inp.dataset.cond = condId;
     if (zvolene.includes(val(nazov))) inp.checked = true;
     inp.addEventListener("change", () => {
       if (condId) $(condId).classList.toggle("on", inp.checked);
@@ -707,11 +697,11 @@ function vykresliOdvetvia(){
     r.className = "odv-r";
     const lab = document.createElement("label");
     const chk = document.createElement("input");
-    chk.type = "checkbox"; chk.name = "Branchen"; chk.value = val(nazov);
+    chk.type = "checkbox"; chk.value = val(nazov); chk.dataset.industry = "1";
     lab.appendChild(chk);
     lab.appendChild(document.createTextNode(t(nazov)));
     const num = document.createElement("input");
-    num.type = "number"; num.name = "Jahre_" + val(nazov);
+    num.type = "number";
     num.min = 0; num.max = 60; num.inputMode = "numeric";
     num.placeholder = t(T.roky_ph); num.disabled = true;
     if (stav[i]){
@@ -765,8 +755,8 @@ function riadokJazyka(jazyk, pevny, uroven, nazovText){
       '<select name="Sprache_'+val(jazyk)+'">'+urovneOptions(uroven)+'</select>';
   } else {
     row.innerHTML =
-      '<input type="text" name="Sprache_weitere_'+jazN+'" placeholder="'+t(T.jaz_ph)+'" value="'+(nazovText||"")+'">' +
-      '<select name="Sprache_weitere_Niveau_'+jazN+'">'+urovneOptions(uroven)+'</select>' +
+      '<input type="text" placeholder="'+t(T.jaz_ph)+'" value="'+(nazovText||"")+'">' +
+      '<select>'+urovneOptions(uroven)+'</select>' +
       '<button type="button" class="xbtn">✕</button>';
     row.querySelector(".xbtn").addEventListener("click", () => { row.remove(); prepocitaj(); });
   }
@@ -900,6 +890,57 @@ function ocistiPrazdnePolia(fd){
   return cista;
 }
 
+/* Skladá pred odoslaním niekoľko uzkych poli do jedneho zhrnujuceho textu.
+   Dovod: Netlify v maili zobrazuje VSETKY polia deklarovane v skrytom
+   formulari pri nasadeni, aj ked konkretna prihlaska dane pole vobec
+   neposlala (prazdne). Pri 11 samostatnych poliach "roky v odvetvi"
+   to znamenalo 8-10 prazdnych riadkov v kazdom maile. Riesenie: namiesto
+   mnohych deklarovanych poli, z ktorych je vzdy vyplnene len jedno-dve,
+   sa pouzije jedno pole s hotovym textom. */
+function pripravKonsolidovanePolia(){
+  // 1) odvetvia + roky -> jedno pole
+  const odvetviaText = [...document.querySelectorAll("#odv .odv-r")]
+    .map(r => {
+      const chk = r.querySelector("input[type=checkbox]");
+      const num = r.querySelector("input[type=number]");
+      if (!chk.checked) return null;
+      const roky = num.value.trim();
+      return chk.value + (roky ? " (" + roky + " Jahre)" : "");
+    })
+    .filter(Boolean)
+    .join(", ");
+  $("branchErf").value = odvetviaText;
+
+  // 2) dalsie jazyky (mimo nemciny/anglictiny) -> jedno pole
+  //    (predtym mali dynamicke mena Sprache_weitere_1, _2... ktore sa
+  //    nezhodovali s deklarovanym "Sprache_weitere" a Netlify ich preto
+  //    ticho zahadzoval — pridanie druheho jazyka sa nikdy neodoslalo)
+  const dalsieJazyky = [...document.querySelectorAll("#jaz .jz.extra")]
+    .map(r => {
+      const nazov = r.querySelector("input[type=text]").value.trim();
+      const uroven = r.querySelector("select").value;
+      return nazov ? nazov + ": " + uroven : null;
+    })
+    .filter(Boolean)
+    .join(", ");
+  $("jazWeitereOut").value = dalsieJazyky;
+
+  // 3) zvaracie metody / rozsah elektro -> priamo do nazvu certifikatu
+  //    (namiesto samostatnych takmer vzdy prazdnych poli)
+  document.querySelectorAll("#kurzy input[type=checkbox]").forEach(chk => {
+    if (!chk.dataset.cond) return;
+    const detailInput = document.querySelector("#" + chk.dataset.cond + " input");
+    const detail = chk.checked && detailInput ? detailInput.value.trim() : "";
+    chk.value = detail ? chk.dataset.zaklad + " (" + detail + ")" : chk.dataset.zaklad;
+  });
+
+  // 4) vlastna pozicia -> priamo do hodnoty pozicie, samostatne pole netreba
+  if ($("poziciaVal").value === "Andere Position"){
+    const vlastna = $("inaPoz").value.trim();
+    if (vlastna) $("poziciaVal").value = vlastna;
+  }
+}
+
 $("frm").addEventListener("submit", e => {
   e.preventDefault();
   const chyby = [];
@@ -918,6 +959,8 @@ $("frm").addEventListener("submit", e => {
     return;
   }
   box.classList.remove("on");
+
+  pripravKonsolidovanePolia();
 
   const tlacidlo = $("frm").querySelector(".send");
   tlacidlo.disabled = true;
