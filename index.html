@@ -159,29 +159,16 @@ textarea{min-height:76px;resize:vertical;}
      povie, ake polia ocakavat. Uzivatel ho nikdy neuvidi.
 ============================================================ -->
 <form name="bewerbung" method="POST" enctype="multipart/form-data" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <!-- Len polia, ktore su vzdy vyplnene. Netlify v maili vypise KAZDE
+       deklarovane pole aj ked je prazdne, preto vsetko nepovinne ide
+       v jednom poli "Details" — tam sa objavi iba to, co kandidat vyplnil. -->
   <input type="text" name="Name">
   <input type="tel" name="Telefon">
-  <input type="email" name="E-Mail">
-  <input type="date" name="Geburtsdatum">
-  <input type="text" name="Ort">
-  <input type="text" name="Geschlecht">
   <input type="text" name="Position">
-  <input type="number" name="Berufsjahre_Position">
-  <input type="text" name="Branchenerfahrung">
-  <input type="text" name="Sprache_Deutsch">
-  <input type="text" name="Sprache_Englisch">
-  <input type="text" name="Sprache_weitere">
-  <input type="text" name="Ausbildung">
-  <input type="text" name="Zertifikate">
-  <textarea name="Weitere_Zertifikate"></textarea>
-  <input type="text" name="Fuehrerschein">
-  <input type="text" name="Fahrerkarte">
   <input type="text" name="Verfuegbarkeit">
+  <textarea name="Details"></textarea>
   <input type="file" name="Lebenslauf">
   <input type="text" name="Einwilligung_Bewerbung">
-  <input type="text" name="Einwilligung_Datenbank">
-  <input type="text" name="Formularsprache">
-  <input type="email" name="email">
   <input name="bot-field">
 </form>
 
@@ -205,11 +192,10 @@ textarea{min-height:76px;resize:vertical;}
   <div class="card">
     <form id="frm" method="POST" enctype="multipart/form-data" novalidate>
       <input type="hidden" name="form-name" value="bewerbung">
-      <input type="hidden" name="Formularsprache" id="formLang" value="sk">
-    <input type="hidden" name="Branchenerfahrung" id="branchErf">
-    <input type="hidden" name="Sprache_weitere" id="jazWeitereOut">
-    <!-- Netlify pouziva pole "email" ako Reply-To notifikacneho mailu -->
-    <input type="hidden" name="email" id="replyTo">
+      <input type="hidden" name="Verfuegbarkeit" id="dostOut">
+    <textarea name="Details" id="detailsOut" style="display:none"></textarea>
+    <input type="hidden" id="formLang" value="sk">
+    <!-- Netlify berie Reply-To z pola "email" -->
       <p style="display:none"><label>Nevypĺňať <input name="bot-field"></label></p>
 
       <div class="sec">
@@ -226,12 +212,12 @@ textarea{min-height:76px;resize:vertical;}
         </div>
         <div class="f">
           <label for="mail"><span data-t="f_mail"></span> <span class="om" data-t="opt"></span></label>
-          <input type="email" id="mail" name="E-Mail" inputmode="email" autocomplete="email">
+          <input type="email" id="mail" inputmode="email" autocomplete="email">
           <div class="errmsg" id="e-mail" data-t="e_mail"></div>
         </div>
         <div class="row2">
-          <div class="f"><label for="dn" data-t="f_dn"></label><input type="date" id="dn" name="Geburtsdatum" autocomplete="bday"></div>
-          <div class="f"><label for="mesto" data-t="f_mesto"></label><input type="text" id="mesto" name="Ort"></div>
+          <div class="f"><label for="dn" data-t="f_dn"></label><input type="date" id="dn" autocomplete="bday"></div>
+          <div class="f"><label for="mesto" data-t="f_mesto"></label><input type="text" id="mesto"></div>
         </div>
         <div class="f">
           <span class="lbl" data-t="f_pohl"></span>
@@ -262,7 +248,7 @@ textarea{min-height:76px;resize:vertical;}
         </div>
         <div class="f">
           <label for="praxP"><span data-t="f_praxp"></span> <span class="om" data-t="roky"></span></label>
-          <input type="number" id="praxP" name="Berufsjahre_Position" min="0" max="60" inputmode="numeric">
+          <input type="number" id="praxP" min="0" max="60" inputmode="numeric">
         </div>
       </div>
 
@@ -281,7 +267,7 @@ textarea{min-height:76px;resize:vertical;}
         </div>
         <div class="f">
           <label for="vzd" data-t="f_vzd"></label>
-          <select id="vzd" name="Ausbildung"></select>
+          <select id="vzd"></select>
         </div>
       </div>
 
@@ -301,7 +287,7 @@ textarea{min-height:76px;resize:vertical;}
         </div>
         <div class="f">
           <label for="kurzIne"><span data-t="f_kurzine"></span> <span class="om" data-t="opt"></span></label>
-          <textarea id="kurzIne" name="Weitere_Zertifikate"></textarea>
+          <textarea id="kurzIne"></textarea>
         </div>
       </div>
 
@@ -322,6 +308,11 @@ textarea{min-height:76px;resize:vertical;}
         <div class="f">
           <span class="lbl" data-t="f_dost"></span>
           <div class="chips" id="dost"></div>
+          <div class="cond" id="c-dostdatum">
+            <span class="lbl" data-t="c_dostdatum"></span>
+            <input type="date" id="dostDatum">
+          </div>
+          <div class="errmsg" id="e-dost" data-t="e_dost"></div>
         </div>
         <div class="f">
           <label for="cv"><span data-t="f_cv"></span> <span class="om" data-t="opt"></span></label>
@@ -332,7 +323,7 @@ textarea{min-height:76px;resize:vertical;}
 
       <div class="gdpr">
         <label class="gd">
-          <input type="checkbox" name="Einwilligung_Bewerbung" id="s1">
+          <input type="checkbox" name="Einwilligung_Bewerbung" id="s1" value="ja">
           <span><span data-t="gdpr1"></span>
             <a href="https://www.mrb-recruitment.de" target="_blank" rel="noopener" data-t="gdpr1link"></a>.
             <span class="tag req" data-t="povinne"></span></span>
@@ -465,13 +456,15 @@ chyba_odoslania:["Senden fehlgeschlagen. Bitte Internetverbindung prüfen und er
 "Odeslání selhalo. Zkontrolujte připojení k internetu a zkuste to znovu.",
 "Wysyłanie nie powiodło się. Sprawdź połączenie z internetem i spróbuj ponownie.",
 "Sending failed. Please check your internet connection and try again."],
+c_dostdatum:["Ab welchem Datum?","Od akého dátumu?","Od jakého data?","Od jakiej daty?","From which date?"],
+e_dost:["Bitte angeben, ab wann Sie anfangen können.","Uveďte prosím, odkedy môžete nastúpiť.","Uveďte prosím, odkdy můžete nastoupit.","Podaj, od kiedy możesz zacząć.","Please tell us when you can start."],
 odstranit:["Entfernen","Odstrániť","Odstranit","Usuń","Remove"],
 jaz_ph:["Weitere Sprache","Ďalší jazyk","Další jazyk","Kolejny język","Another language"]
 };
 
 const POHLAVIE=[["Männlich","Muž","Muž","Mężczyzna","Male"],["Weiblich","Žena","Žena","Kobieta","Female"],["Keine Angabe","Neuvádzam","Neuvádím","Nie podaję","Not specified"]];
 const VZDELANIE=[["Grundschule","Základné","Základní","Podstawowe","Primary"],["Berufsausbildung","Vyučený (bez maturity)","Vyučen (bez maturity)","Zasadnicze zawodowe","Vocational"],["Abitur / Matura","Stredoškolské s maturitou","Středoškolské s maturitou","Średnie","Secondary with diploma"],["Hochschule","Vysokoškolské","Vysokoškolské","Wyższe","University"]];
-const DOSTUPNOST=[["Sofort","Ihneď","Ihned","Od zaraz","Immediately"],["Innerhalb von 2 Wochen","Do 2 týždňov","Do 2 týdnů","W ciągu 2 tygodni","Within 2 weeks"],["Innerhalb eines Monats","Do mesiaca","Do měsíce","W ciągu miesiąca","Within a month"],["Nach Vereinbarung","Dohodou","Dohodou","Do uzgodnienia","By agreement"]];
+const DOSTUPNOST=[["Sofort","Ihneď","Ihned","Od zaraz","Immediately"],["Innerhalb von 2 Wochen","Do 2 týždňov","Do 2 týdnů","W ciągu 2 tygodni","Within 2 weeks"],["Innerhalb eines Monats","Do mesiaca","Do měsíce","W ciągu miesiąca","Within a month"],["Ab bestimmtem Datum","K určitému dátumu","K určitému datu","Od konkretnej daty","From a specific date"],["Nach Vereinbarung","Dohodou","Dohodou","Do uzgodnienia","By agreement"]];
 const ANO_NIE=[["Ja","Áno","Ano","Tak","Yes"],["Nein","Nie","Ne","Nie","No"]];
 const UROVNE=[["Keine","Neovládam","Neovládám","Nie znam","None"],["A1","A1","A1","A1","A1"],["A2","A2","A2","A2","A2"],["B1","B1","B1","B1","B1"],["B2","B2","B2","B2","B2"],["C1","C1","C1","C1","C1"],["C2","C2","C2","C2","C2"],["Muttersprache","Materinský jazyk","Mateřský jazyk","Język ojczysty","Native"]];
 const JAZ_PEVNE=[["Deutsch","Nemčina","Němčina","Niemiecki","German"],["Englisch","Angličtina","Angličtina","Angielski","English"]];
@@ -628,8 +621,11 @@ function vykresliVsetko(){
   $("praxP").placeholder = t(T.roky_ph);
 
   chipSkupina($("pohl"), POHLAVIE, "Geschlecht", "radio");
-  chipSkupina($("dost"), DOSTUPNOST, "Verfuegbarkeit", "radio");
+  chipSkupina($("dost"), DOSTUPNOST, "dostRadio", "radio");
   chipSkupina($("karta"), ANO_NIE, "Fahrerkarte", "radio");
+  // pri volbe "k urcitemu datumu" sa odomkne kalendar
+  $("dost").querySelectorAll("input").forEach(i => i.addEventListener("change", obnovDatum));
+  obnovDatum();
   vykresliVodicak();
   vykresliKurzy();
   vykresliOdvetvia();
@@ -684,6 +680,16 @@ function vykresliVodicak(){
   });
   obnovKartu();
 }
+function obnovDatum(){
+  const zvolena = $("dost").querySelector("input:checked");
+  const jeDatum = !!zvolena && zvolena.value === "Ab bestimmtem Datum";
+  $("c-dostdatum").classList.toggle("on", jeDatum);
+  if (!jeDatum) $("dostDatum").value = "";
+  // nastup v minulosti nedava zmysel
+  $("dostDatum").min = new Date().toISOString().slice(0,10);
+  prepocitaj();
+}
+
 function obnovKartu(){
   const profi = [...$("vp").querySelectorAll("input:checked")].some(i => ["C","CE","D"].includes(i.value));
   $("c-karta").classList.toggle("on", profi);
@@ -901,7 +907,7 @@ function prepocitaj(){
   let hot = 0, spolu = 0;
   SLED.forEach(id => { const el = $(id); if (!el) return; spolu++; if (el.value) hot++; });
   spolu++; if ($("poziciaVal").value) hot++;
-  ["Geschlecht","Verfuegbarkeit"].forEach(n => { spolu++; if (document.querySelector('input[name="'+n+'"]:checked')) hot++; });
+  ["Geschlecht","dostRadio"].forEach(n => { spolu++; if (document.querySelector('input[name="'+n+'"]:checked')) hot++; });
   ["Zertifikate","Fuehrerschein"].forEach(n => { spolu++; if (document.querySelector('input[name="'+n+'"]:checked')) hot++; });
   spolu++; if (document.querySelector('#odv input[type=checkbox]:checked')) hot++;
   spolu++; if ([...document.querySelectorAll('#jaz .jz select:not(.jaz-nazov)')].some(s => s.value !== "Keine" && s.value !== "")) hot++;
@@ -959,7 +965,7 @@ function ocistiPrazdnePolia(fd){
    mnohych deklarovanych poli, z ktorych je vzdy vyplnene len jedno-dve,
    sa pouzije jedno pole s hotovym textom. */
 function pripravKonsolidovanePolia(){
-  // 1) odvetvia + roky -> jedno pole
+  // 1) odvetvia + roky -> jeden text
   const odvetviaText = [...document.querySelectorAll("#odv .odv-r")]
     .map(r => {
       const chk = r.querySelector("input[type=checkbox]");
@@ -970,12 +976,8 @@ function pripravKonsolidovanePolia(){
     })
     .filter(Boolean)
     .join(", ");
-  $("branchErf").value = odvetviaText;
 
-  // 2) dalsie jazyky (mimo nemciny/anglictiny) -> jedno pole
-  //    (predtym mali dynamicke mena Sprache_weitere_1, _2... ktore sa
-  //    nezhodovali s deklarovanym "Sprache_weitere" a Netlify ich preto
-  //    ticho zahadzoval — pridanie druheho jazyka sa nikdy neodoslalo)
+  // 2) dalsie jazyky -> jeden text, nazvy po nemecky
   const dalsieJazyky = [...document.querySelectorAll("#jaz .jz.extra")]
     .map(r => {
       const sel = r.querySelector(".jaz-nazov");
@@ -986,10 +988,8 @@ function pripravKonsolidovanePolia(){
     })
     .filter(Boolean)
     .join(", ");
-  $("jazWeitereOut").value = dalsieJazyky;
 
   // 3) zvaracie metody / rozsah elektro -> priamo do nazvu certifikatu
-  //    (namiesto samostatnych takmer vzdy prazdnych poli)
   document.querySelectorAll("#kurzy input[type=checkbox]").forEach(chk => {
     if (!chk.dataset.cond) return;
     const detailInput = document.querySelector("#" + chk.dataset.cond + " input");
@@ -997,11 +997,65 @@ function pripravKonsolidovanePolia(){
     chk.value = detail ? chk.dataset.zaklad + " (" + detail + ")" : chk.dataset.zaklad;
   });
 
-  // 4) vlastna pozicia -> priamo do hodnoty pozicie, samostatne pole netreba
+  // 4) vlastna pozicia -> priamo do hodnoty pozicie
   if ($("poziciaVal").value === "Andere Position"){
     const vlastna = $("inaPoz").value.trim();
     if (vlastna) $("poziciaVal").value = vlastna;
   }
+
+  // 5) dostupnost: pri volbe "k urcitemu datumu" sa posle konkretny datum
+  const dostSel = $("dost").querySelector("input:checked");
+  let dostupnost = dostSel ? dostSel.value : "";
+  if (dostupnost === "Ab bestimmtem Datum"){
+    const dd = $("dostDatum").value;
+    dostupnost = dd ? "Ab " + dd : "Nach Vereinbarung";
+  }
+  $("dostOut").value = dostupnost;
+
+  /* 6) VSETKO NEPOVINNE -> jedno pole "Details".
+        Netlify v maili vypise kazde deklarovane pole, aj ked je prazdne.
+        Preto je v deklaracii len par vzdy vyplnenych poli + tento suhrn,
+        do ktoreho ide iba to, co kandidat naozaj vyplnil. */
+  const riadky = [];
+  const pridaj = (popis, hodnota) => { if (hodnota && String(hodnota).trim()) riadky.push(popis + ": " + hodnota); };
+
+  const zaskrtnute = n => [...document.querySelectorAll('input[name="'+n+'"]:checked')].map(i => i.value).join(", ");
+  const vekText = () => {
+    const d = $("dn").value; if (!d) return "";
+    const n = new Date(d), t = new Date();
+    let v = t.getFullYear() - n.getFullYear();
+    const m = t.getMonth() - n.getMonth();
+    if (m < 0 || (m === 0 && t.getDate() < n.getDate())) v--;
+    return (v >= 14 && v <= 100) ? d + " (" + v + " J.)" : d;
+  };
+
+  pridaj("E-Mail", $("mail").value.trim());
+  pridaj("Geburtsdatum", vekText());
+  pridaj("Ort", $("mesto").value.trim());
+  pridaj("Geschlecht", zaskrtnute("Geschlecht"));
+  pridaj("Berufsjahre in der Position", $("praxP").value.trim());
+  pridaj("Branchenerfahrung", odvetviaText);
+
+  const jazyky = [];
+  const de = document.querySelector('[name="Sprache_Deutsch"]');
+  const en = document.querySelector('[name="Sprache_Englisch"]');
+  if (de && de.value !== "Keine") jazyky.push("Deutsch: " + de.value);
+  if (en && en.value !== "Keine") jazyky.push("Englisch: " + en.value);
+  if (dalsieJazyky) jazyky.push(dalsieJazyky);
+  pridaj("Sprachen", jazyky.join(", "));
+
+  pridaj("Ausbildung", $("vzd").value);
+  pridaj("Zertifikate", zaskrtnute("Zertifikate"));
+  pridaj("Weitere Zertifikate", $("kurzIne").value.trim());
+
+  const vp = zaskrtnute("Fuehrerschein");
+  const karta = zaskrtnute("Fahrerkarte");
+  pridaj("Führerschein", vp + (karta ? " | Fahrerkarte: " + karta : ""));
+
+  if ($("s2").checked) riadky.push("Einwilligung Datenbank (3 Jahre): ja");
+  riadky.push("Formularsprache: " + L);
+
+  $("detailsOut").value = riadky.join("\n");
 }
 
 $("frm").addEventListener("submit", e => {
@@ -1011,6 +1065,10 @@ $("frm").addEventListener("submit", e => {
   if (chybne($("tel"),"e-tel",   zlyTel))  chyby.push(t(T.f_tel));
   if (chybne($("mail"),"e-mail", zlyMail)) chyby.push(t(T.f_mail));
   if (!$("poziciaVal").value){ $("e-poz").classList.add("on"); chyby.push(t(T.f_poz)); }
+  const dostZvolena = $("dost").querySelector("input:checked");
+  const dostChyba = !dostZvolena || (dostZvolena.value === "Ab bestimmtem Datum" && !$("dostDatum").value);
+  $("e-dost").classList.toggle("on", dostChyba);
+  if (dostChyba) chyby.push(t(T.f_dost));
   if (!$("s1").checked) chyby.push(t(T.err_suhlas));
   if (velkeCV()) chyby.push(t(T.cv_velke));
 
@@ -1025,7 +1083,6 @@ $("frm").addEventListener("submit", e => {
   box.classList.remove("on");
 
   pripravKonsolidovanePolia();
-  $("replyTo").value = $("mail").value.trim();   // Reply-To pre notifikacny mail
 
   const tlacidlo = $("frm").querySelector(".send");
   tlacidlo.disabled = true;
